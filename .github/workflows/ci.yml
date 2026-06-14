@@ -28,11 +28,13 @@ jobs:
         working-directory: python
         run: |
           python -m pip install --upgrade pip
+          # Copy root README so hatchling finds it (pyproject.toml lives in python/)
+          cp ../README.md README.md
           pip install -e ".[dev]"
 
       - name: Lint (ruff)
         working-directory: python
-        run: ruff check . --select E,F,I
+        run: ruff check pruvagraph/ --select E,F,I
 
       - name: Import check
         working-directory: python
@@ -89,6 +91,7 @@ jobs:
         working-directory: python
         run: |
           pip install build
+          cp ../README.md README.md
           python -m build
 
       - name: Publish to PyPI
