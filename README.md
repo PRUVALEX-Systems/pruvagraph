@@ -1,3 +1,8 @@
+<div align="center">
+
+<img width="619" height="299" alt="image" src="https://github.com/user-attachments/assets/b1534f93-0c36-4a71-86b5-da3ff586d1ea" />
+
+
 # PruvaGraph
 
 **Codebase knowledge graphs with 95%+ LLM cost reduction.**
