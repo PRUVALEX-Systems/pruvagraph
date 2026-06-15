@@ -4,7 +4,7 @@
 
 # PruvaGraph
 
-**Codebase knowledge graphs with 99.9997% LLM cost reduction.**
+**Codebase knowledge graphs with 100% local parsing for code & configs.**
 
 Turn any repository into a queryable knowledge graph. One command, any language, any size.  
 Built for developers who love Claude Code — but not the bill.
@@ -28,7 +28,7 @@ Standard tools send every file to an LLM on every run. PruvaGraph has 28 layers 
 
 | | Other tools | PruvaGraph v1.2.0 |
 |---|---|---|
-| 10,000-file repo, daily CI | ~$313/month | **~$0.001/month** |
+| 10,000-file repo, daily CI | LLM extraction for everything | **0 LLM calls for code/configs** |
 | Re-run (unchanged files) | Full LLM scan again | **Instant cache — $0.00** |
 | Code file analysis | API cost per file | **$0.00 — local tree-sitter, always free** |
 | Config files (JSON/YAML/TOML) | LLM extraction | **$0.00 — structural parser** |
@@ -210,20 +210,11 @@ Question ──► Tier 0: Query Cache (N6)        ──► exact + fuzzy-match
 
 ---
 
-## Cost Reduction — By the Numbers
+## Cost Reduction — Honest Numbers
 
-### Combined Savings
-
-```
-Baseline (naive, no tool):       $905/month    (3,300,000 LLM calls)
-After v1.0.0 (7 layers):          $5.03/month  (99.4% savings)
-After v1.1.0 (25 layers):        ~$0.002/month  (99.9998% savings)
-v1.2.0 (28 layers):              ~$0.001/month  (99.9999% savings)
-
-Per query:         $0.150  →  $0.00015     (99.9% per query)
-Code-only build:   $30/run →  $0.000/run   (100% free)
-Mixed build:       $50/run →  $0.001/run   (99.998% per run)
-```
+- **For repos with no PDFs/images** (most repos): **0 LLM calls needed for build** — code, config, schemas, and markdown docs are all parsed locally for free.
+- **For repos with genuine LLM-bound docs**: Cache + dedup + batching typically cut **80–95% of LLM calls on re-runs**, and **40–60% on first runs** with similar files.
+- **For AI-assistant query cost** (Claude Code/Cursor reading `graph.json`): Reduces context tokens per query by roughly **5×–20×** vs reading raw files.
 
 ### What Still Costs Money
 
