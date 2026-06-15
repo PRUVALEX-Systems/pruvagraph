@@ -90,7 +90,8 @@ def _add_edge(G: nx.MultiDiGraph, edge: dict[str, Any]) -> None:
 
     for node_id in (src, tgt):
         if not G.has_node(node_id):
-            G.add_node(node_id, **_NODE_DEFAULTS, label=node_id, type="external")
+            stub = {**_NODE_DEFAULTS, "label": node_id, "type": "external"}
+            G.add_node(node_id, **stub)
 
     G.add_edge(src, tgt, relation=relation)
 

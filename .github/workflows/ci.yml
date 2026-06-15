@@ -43,8 +43,7 @@ jobs:
 
       - name: Run tests
         working-directory: python
-        run: |
-          python -m pytest tests/ -v --tb=short 2>/dev/null || echo "No tests yet — skipping"
+        run: python -m pytest tests/ -v --tb=short
 
   # ── VS Code extension ───────────────────────────────────────
   vscode:

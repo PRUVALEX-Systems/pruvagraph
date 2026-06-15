@@ -40,7 +40,7 @@ _OUT_DIR = "pruvagraph-out"
 class BuildConfig:
     """Configuration for a graph build run."""
     root: Path
-    backend: str = "claude"
+    backend: str = "none"
     cascade: bool = False
     max_tokens_per_batch: int = 12_000
     dedup_threshold: float = 0.82
@@ -77,7 +77,7 @@ class BuildResult:
 
 def build_graph(
     root: str | Path,
-    backend: str = "claude",
+    backend: str = "none",
     cascade: bool = False,
     budget_usd: float | None = None,
     dry_run: bool = False,

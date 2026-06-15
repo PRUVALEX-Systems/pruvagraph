@@ -47,6 +47,7 @@ class StreamStatus:
         self._write("building", message)
 
     def complete(self) -> None:
+        self._files_done = self._files_total
         self._write("complete", "Build complete")
 
     def error(self, msg: str) -> None:

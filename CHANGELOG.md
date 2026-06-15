@@ -10,9 +10,16 @@ All notable changes to PRUVALEX PruvaGraph are documented here.
 - **Arch3 (Predictive Pre-warming)**: Zero-latency answers. Predicts developer queries based on changed files (e.g., editing `auth.py` predicts "how does auth work?") and pre-computes answers in the background using the free-tier pipeline.
 - **N3 (VS Code LSP Integration)**: Lightning fast graph building via `build-from-lsp`. Extracts symbols using VS Code's internal language server (bypassing tree-sitter completely) to build a fast structural graph in seconds.
 
-### Changed
-- Finalised layer count to 28.
-- Added `pruvagraph.buildFast` command to VS Code extension sidebar.
+### Fixed
+- **Graph build crash**: stub external nodes no longer pass duplicate `label` kwargs to NetworkX.
+- **Windows CLI**: logo rendering falls back to ASCII when the console cannot encode box-drawing characters.
+- **Streaming status**: `complete()` now sets progress to 100%.
+- **CLI backend**: added `none` (free code-only) to `--backend` choices; default is now `none`.
+- **Export CLI**: removed unimplemented `pdf` format option.
+
+### Added
+- **Test suite**: 17 unit tests covering build, detect, dedup, export, streaming, prewarm, and deterministic query routing.
+- **CONTRIBUTING.md**: local setup, test, and PR guidelines.
 
 ## [1.1.0] — 2026-06-15
 

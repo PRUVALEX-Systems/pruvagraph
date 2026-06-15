@@ -13,7 +13,7 @@ Usage:
     pruvagraph benchmark             Token savings vs reading raw files
     pruvagraph install               Write IDE integration files
     pruvagraph hook install          Install git post-commit hook
-    pruvagraph export --format pdf   Export graph in various formats
+    pruvagraph export --format html   Export graph in various formats
 """
 from __future__ import annotations
 
@@ -47,9 +47,9 @@ LOGO = """
 
 @click.group(invoke_without_command=True)
 @click.argument("root", default=".", required=False)
-@click.option("--backend", "-b", default="claude",
-              type=click.Choice(["claude", "gemini", "kimi", "openai", "ollama"]),
-              show_default=True, help="LLM backend for doc/image extraction.")
+@click.option("--backend", "-b", default="none",
+              type=click.Choice(["none", "claude", "gemini", "kimi", "openai", "ollama"]),
+              show_default=True, help="LLM backend for doc/image extraction (none = code only, free).")
 @click.option("--cascade", is_flag=True,
               help="3-tier cascade: local → cheap → premium.")
 @click.option("--update", "-u", is_flag=True,
@@ -99,7 +99,10 @@ def main(
         return
 
     if _RICH:
-        _CONSOLE.print(f"[bold cyan]{LOGO}[/bold cyan]")
+        try:
+            _CONSOLE.print(f"[bold cyan]{LOGO}[/bold cyan]")
+        except UnicodeEncodeError:
+            click.echo("PruvaGraph — by PRUVALEX (codebase graphs, 95%+ cost savings)")
 
     root_path = Path(root).resolve()
     if not root_path.exists():
@@ -137,8 +140,8 @@ def main(
 @main.command()
 @click.argument("question")
 @click.option("--root", default=".", show_default=True)
-@click.option("--backend", "-b", default="claude",
-              type=click.Choice(["claude", "gemini", "kimi", "openai", "ollama"]))
+@click.option("--backend", "-b", default="none",
+              type=click.Choice(["none", "claude", "gemini", "kimi", "openai", "ollama"]))
 def query(question: str, root: str, backend: str) -> None:
     """Query the knowledge graph in natural language."""
     out_dir = Path(root) / "pruvagraph-out"
@@ -210,7 +213,7 @@ def cost_report_cmd(root: str) -> None:
 @main.command()
 @click.option("--root", default=".", show_default=True)
 @click.option("--format", "fmt",
-              type=click.Choice(["cypher", "obsidian", "graphml", "html", "pdf"]),
+              type=click.Choice(["cypher", "obsidian", "graphml", "html"]),
               default="html", show_default=True)
 def export(root: str, fmt: str) -> None:
     """Export the graph in various formats."""
