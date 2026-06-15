@@ -27,7 +27,7 @@ try:
     import tiktoken
     _enc = tiktoken.get_encoding("cl100k_base")
     _TIKTOKEN = True
-except ImportError:
+except Exception:
     _TIKTOKEN = False
 
 # Characters per token estimate when tiktoken is not installed.

@@ -92,7 +92,7 @@ def _count_tokens(text: str) -> int:
         import tiktoken
         enc = tiktoken.get_encoding("cl100k_base")
         return len(enc.encode(text))
-    except ImportError:
+    except Exception:
         return len(text) // 4
 
 
