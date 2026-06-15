@@ -1,6 +1,46 @@
 <div align="center">
 
-<img width="619" height="299" alt="PruvaGraph — Codebase knowledge graphs" src="https://github.com/user-attachments/assets/b1534f93-0c36-4a71-86b5-da3ff586d1ea" />
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3840 2160" width="3840" height="2160">
+  <defs>
+    <style>
+      .bg { fill: #0B0C10; }
+      .card { fill: #11131A; stroke: #1A1D24; stroke-width: 4; }
+      .hex { fill: #FF3344; }
+      .p-letter { fill: #FFFFFF; }
+      .title { 
+        font-family: 'Arial Black', Impact, sans-serif; 
+        font-size: 320px; 
+        fill: #FFFFFF; 
+        font-weight: 900; 
+        letter-spacing: 20px; 
+      }
+      .subtitle { 
+        font-family: 'Inter', 'Helvetica Neue', sans-serif; 
+        font-size: 90px; 
+        fill: #8A8D98; 
+        font-weight: 600; 
+        letter-spacing: 10px; 
+      }
+    </style>
+  </defs>
+  
+  <rect class="bg" width="3840" height="2160"/>
+  
+  <rect class="card" x="320" y="280" width="3200" height="1600" rx="150"/>
+
+  <g transform="translate(450, 900)">
+    
+    <g transform="translate(0, -120)">
+      <path class="hex" d="M 160 0 L 320 92 L 320 276 L 160 368 L 0 276 L 0 92 Z"/>
+      <path class="p-letter" d="M 70 110 L 210 110 C 250 110 270 130 270 170 C 270 210 250 230 210 230 L 130 230 L 130 280 L 70 280 Z M 130 150 L 130 190 L 190 190 C 210 190 210 150 190 150 Z"/>
+    </g>
+
+    <text class="title" x="420" y="160">PRUVALEX</text>
+    <text class="subtitle" x="430" y="340">EU AI Act Compliance OS</text>
+  </g>
+</svg>
+
+
 
 # PruvaGraph
 
