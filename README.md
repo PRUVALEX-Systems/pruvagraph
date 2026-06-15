@@ -37,7 +37,7 @@ Standard code-to-graph tools send every file to an LLM on every run. PruvaGraph 
 | Code file analysis | API cost per file | **$0.00 — local tree-sitter AST** |
 | Data sovereignty | Cloud dependent | **100% local, no server** |
 
-**How:** Five layers working together — SHA-256 hash cache + semantic MinHash dedup + smart batch packing + 3-tier LLM cascade + token compression. Code files always use tree-sitter locally (zero cost). LLM is reserved for docs, PDFs, and images that actually need it.
+**How:** 28 layers working together — SHA-256 hash cache + semantic MinHash dedup + smart batch packing + 3-tier LLM cascade + token compression + structural parsing + predictive pre-warming + streaming architecture. Code files always use tree-sitter or LSP locally (zero cost). LLM is reserved for docs, PDFs, and images that actually need it.
 
 ---
 
@@ -253,6 +253,9 @@ pruvagraph . --dry-run              # Cost estimate, zero spend
 pruvagraph . --budget 2.00          # Hard cap — max $2.00
 pruvagraph . --force                # Ignore cache, full rebuild
 pruvagraph . --no-viz               # Skip HTML (faster for CI)
+pruvagraph . --stream               # Stream partial graph JSON while building
+pruvagraph build-from-lsp <file>    # Build instantly from IDE LSP symbols
+pruvagraph build-status .           # Track streaming build status
 
 # ── QUERY ──────────────────────────────────────────────────
 pruvagraph query "how does auth work?"
