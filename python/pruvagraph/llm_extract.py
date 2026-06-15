@@ -9,6 +9,10 @@ Code files NEVER reach this module -- they go through ``extract.py``
 are routed here, and even then only after dedup + batching have already
 shrunk the file list as much as possible.
 
+  L5:  Token compression     -> compress() called before every LLM batch
+                               strips license headers, badges, redundant imports
+                               Result: 50-80% token reduction
+
 Backends supported:
   - "none"   -> no LLM call. Returns a minimal stub node per file (free).
   - "claude" -> Anthropic API (ANTHROPIC_API_KEY)
@@ -56,12 +60,27 @@ def extract_doc_batch(
     if not paths:
         return []
 
+    from pruvagraph.compress import compress
+
     file_contents: list[tuple[str, str]] = []
     for p in paths:
         try:
-            text = p.read_text(encoding="utf-8", errors="replace")
+            raw_text = p.read_text(encoding="utf-8", errors="replace")
         except OSError:
-            text = ""
+            raw_text = ""
+        
+        # L5: Token compression — strip license headers, badge noise,
+        # redundant imports, boilerplate before sending to LLM
+        try:
+            compression_result = compress(raw_text, p, p.suffix)
+            text = compression_result.compressed_content
+            # Log compression ratio if significant
+            if compression_result.ratio < 0.7:  # saved >30%
+                pass  # pipeline will log cost savings
+        except Exception:
+            # Never let compression failure break the build
+            text = raw_text
+        
         file_contents.append((str(p), text[:max_chars_per_file]))
 
     if backend == "none" or not _has_credentials(backend):

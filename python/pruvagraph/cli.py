@@ -128,6 +128,7 @@ def main(
             no_viz=no_viz,
             out_dir=out_dir,
             streaming=stream,
+            update=update,           # N9: incremental mode
         )
     except BudgetExceededError as e:
         click.echo(f"\n⛔ {e}", err=True)

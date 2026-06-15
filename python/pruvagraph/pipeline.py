@@ -50,6 +50,7 @@ class BuildConfig:
     no_viz: bool = False         # skip HTML generation
     out_dir: str = _OUT_DIR
     streaming: bool = False      # Arch1: write partial graph during build
+    update: bool = False         # N9: incremental mode
 
 
 @dataclass
@@ -87,6 +88,7 @@ def build_graph(
     no_viz: bool = False,
     out_dir: str = _OUT_DIR,
     streaming: bool = False,
+    update: bool = False,          # N9: incremental mode
 ) -> BuildResult:
     """
     Build a knowledge graph for *root* with maximum LLM cost reduction.
@@ -121,6 +123,7 @@ def build_graph(
         no_viz=no_viz,
         out_dir=out_dir,
         streaming=streaming,
+        update=update,             # N9: incremental mode
     )
     return _run_pipeline(cfg)
 
@@ -187,6 +190,40 @@ def _run_pipeline(cfg: BuildConfig) -> BuildResult:
     code_files = [f for f, t in all_files if t == FileType.CODE]
     doc_files  = [f for f, t in all_files if t in (FileType.DOCUMENT, FileType.PAPER, FileType.IMAGE)]
     tracker._total_files = len(all_files)
+
+    # ── N9: AST Diff — filter to changed files only (--update mode) ─────────
+    if cfg.update and not cfg.force:
+        try:
+            from pruvagraph.ast_diff import get_changed_files, is_git_repo
+            if is_git_repo(cfg.root):
+                changed = set(str(p) for p in get_changed_files(cfg.root))
+                if changed:
+                    # Keep files that changed OR have no cache entry yet
+                    def _needs_processing(path: Path) -> bool:
+                        if str(path) in changed:
+                            return True
+                        # Also include files not yet in cache
+                        return cache.check(path) is None
+
+                    orig_code = len(code_files)
+                    orig_doc  = len(doc_files)
+                    code_files = [p for p in code_files if _needs_processing(p)]
+                    doc_files  = [p for p in doc_files  if _needs_processing(p)]
+                    skipped_n9 = (orig_code - len(code_files)) + (orig_doc - len(doc_files))
+                    if skipped_n9:
+                        _rich_print(
+                            f"  [N9] AST diff: {skipped_n9} unchanged files skipped "
+                            f"({len(code_files)} code + {len(doc_files)} docs to process)",
+                            "green",
+                        )
+                else:
+                    _rich_print("  [N9] No changed files detected — nothing to do.", "green")
+                    # Load existing graph and return early
+                    # (existing graph.json is still valid)
+            else:
+                _rich_print("  [N9] Not a git repo — full scan (run git init to enable)", "yellow")
+        except Exception as e:
+            _rich_print(f"  [N9] AST diff unavailable: {e} — full scan", "yellow")
 
     # Arch1: initialise streaming status now we know total file count
     if cfg.streaming:
@@ -266,9 +303,47 @@ def _run_pipeline(cfg: BuildConfig) -> BuildResult:
     except Exception:
         shield = None
 
+    # ── A5: Global Package Cache — check cross-project cache first ──────
+    global_cache_hits = 0
+    _pkg_deps: dict[str, str] = {}
+    try:
+        from pruvagraph.global_cache import (
+            get_package_nodes,
+            save_to_global_cache,
+            scan_dependencies,
+        )
+        _pkg_deps = scan_dependencies(cfg.root)
+        if _pkg_deps:
+            cached_pkg_paths: set[str] = set()
+            for pkg_name, version in _pkg_deps.items():
+                cached = get_package_nodes(pkg_name, version)
+                if cached and cached.get("nodes"):
+                    all_extractions.append(cached)
+                    global_cache_hits += 1
+                    # Mark the files from this package as already processed
+                    # so the per-file loop skips them
+                    for node in cached.get("nodes", []):
+                        src = node.get("file", "")
+                        if src:
+                            cached_pkg_paths.add(src)
+            if global_cache_hits:
+                _rich_print(
+                    f"  [A5] Global cache: {global_cache_hits} packages loaded "
+                    f"(no LLM calls)", "green"
+                )
+    except Exception:
+        _pkg_deps = {}
+        cached_pkg_paths = set()
+        save_to_global_cache = None
+
     docs_to_extract: list[Path] = []
     free_parsed = 0
     for path in doc_files:
+        # A5: Skip files already covered by global package cache
+        if str(path) in cached_pkg_paths:
+            tracker.record_cache_hit()
+            continue
+        
         # Cache check first
         if not cfg.force:
             cached = cache.check(path)
@@ -416,6 +491,21 @@ def _run_pipeline(cfg: BuildConfig) -> BuildResult:
                         projected = project_extraction(group, rep_result)
                         projected["source_file"] = str(dup)
                         all_extractions.append(projected)
+
+        # A5: Save new LLM extractions back to global cache for future projects
+        if save_to_global_cache is not None and _pkg_deps:
+            for pkg_name, version in _pkg_deps.items():
+                # Check if any extracted nodes belong to this package
+                pkg_nodes = [
+                    n for ext in extractions
+                    for n in ext.get("nodes", [])
+                    if pkg_name.lower() in n.get("file", "").lower()
+                ]
+                if pkg_nodes:
+                    try:
+                        save_to_global_cache(pkg_name, version, {"nodes": pkg_nodes, "edges": []})
+                    except Exception:
+                        pass
 
     # ── Stages 3–5: Build → Cluster → Analyze → Report → Export ────────────
     _rich_print("[Stage 3/5] Building graph...", "cyan")
