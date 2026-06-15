@@ -56,25 +56,33 @@ except ImportError:
 
 
 # ---------------------------------------------------------------------------
-# Graph loader (lazy, cached)
+# Graph loader (lazy, cached) — Arch1 streaming-aware
 # ---------------------------------------------------------------------------
 
 _graph_cache: dict[str, Any] = {}
 
-def _load_graph(root: str = ".") -> Any:
-    """Load networkx graph from pruvagraph-out/graph.json."""
-    key = str(Path(root).resolve())
-    if key in _graph_cache:
-        return _graph_cache[key]
+def _load_graph(root: str = ".") -> tuple[Any, bool]:
+    """
+    Load best available networkx graph.
+    Prefers full graph.json, falls back to graph_partial.json during streaming build.
 
-    graph_path = Path(root) / "pruvagraph-out" / "graph.json"
+    Returns (graph, is_partial). Returns (None, False) if no graph available.
+    """
+    out_dir = Path(root) / "pruvagraph-out"
+    try:
+        from pruvagraph.streaming import load_best_graph
+        return load_best_graph(out_dir)
+    except ImportError:
+        pass
+
+    # Fallback to direct load
+    graph_path = out_dir / "graph.json"
     if not graph_path.exists():
-        return None
+        return None, False
 
     import networkx as nx
     G = nx.node_link_graph(json.loads(graph_path.read_text()))
-    _graph_cache[key] = G
-    return G
+    return G, False
 
 
 # ---------------------------------------------------------------------------
@@ -83,9 +91,18 @@ def _load_graph(root: str = ".") -> Any:
 
 def _query_graph(question: str, root: str = ".") -> str:
     """Query the graph in natural language."""
-    G = _load_graph(root)
+    G, is_partial = _load_graph(root)
     if G is None:
         return "No graph found. Run 'pruvagraph .' first."
+
+    prefix = ""
+    if is_partial:
+        try:
+            from pruvagraph.streaming import get_build_status, partial_graph_note
+            status = get_build_status(Path(root) / "pruvagraph-out")
+            prefix = partial_graph_note(status.get("percent", 0))
+        except Exception:
+            pass
 
     # Simple keyword search over node summaries + labels
     q_lower = question.lower()
@@ -110,12 +127,12 @@ def _query_graph(question: str, root: str = ".") -> str:
         lines.append(f"• [{m['type']}] {m['label']} ({m['file']})\n  {m['summary']}")
     if len(matches) > 10:
         lines.append(f"\n... and {len(matches)-10} more.")
-    return "\n".join(lines)
+    return prefix + "\n".join(lines)
 
 
 def _get_dependencies(node_id: str, root: str = ".") -> str:
     """Return all nodes that node_id imports/uses/calls."""
-    G = _load_graph(root)
+    G, is_partial = _load_graph(root)
     if G is None:
         return "No graph found."
 
@@ -138,12 +155,15 @@ def _get_dependencies(node_id: str, root: str = ".") -> str:
     lines = [f"Dependencies of '{node_id}':\n"]
     for d in deps:
         lines.append(f"  {d['relation']} {d['label']} — {d['summary']}")
-    return "\n".join(lines)
+    ans = "\n".join(lines)
+    if is_partial:
+        ans = "[PARTIAL GRAPH - Build still running]\n" + ans
+    return ans
 
 
 def _find_callers(node_id: str, root: str = ".") -> str:
     """Return all nodes that call/import node_id."""
-    G = _load_graph(root)
+    G, is_partial = _load_graph(root)
     if G is None:
         return "No graph found."
 
@@ -166,12 +186,15 @@ def _find_callers(node_id: str, root: str = ".") -> str:
     lines = [f"Callers of '{node_id}':\n"]
     for c in callers:
         lines.append(f"  {c['label']} ({c['file']}) via {c['relation']}")
-    return "\n".join(lines)
+    ans = "\n".join(lines)
+    if is_partial:
+        ans = "[PARTIAL GRAPH - Build still running]\n" + ans
+    return ans
 
 
 def _get_summary(node_id: str, root: str = ".") -> str:
     """Get one-sentence summary and metadata for a node."""
-    G = _load_graph(root)
+    G, is_partial = _load_graph(root)
     if G is None:
         return "No graph found."
 
@@ -189,18 +212,21 @@ def _get_summary(node_id: str, root: str = ".") -> str:
         return f"Node '{node_id}' not found."
 
     data = G.nodes[target]
-    return (
+    ans = (
         f"Node: {data.get('label')}\n"
         f"Type: {data.get('type')}\n"
         f"File: {data.get('file')}\n"
         f"Summary: {data.get('summary', 'No summary available.')}\n"
         f"Community: {data.get('community', 'N/A')}"
     )
+    if is_partial:
+        ans = "[PARTIAL GRAPH - Build still running]\n" + ans
+    return ans
 
 
 def _list_communities(root: str = ".") -> str:
     """List detected architectural communities/modules."""
-    G = _load_graph(root)
+    G, is_partial = _load_graph(root)
     if G is None:
         return "No graph found."
 
@@ -219,7 +245,10 @@ def _list_communities(root: str = ".") -> str:
         sample = ", ".join(members[:5])
         more   = f" (+{len(members)-5} more)" if len(members) > 5 else ""
         lines.append(f"Community {cid} ({len(members)} nodes): {sample}{more}")
-    return "\n".join(lines)
+    ans = "\n".join(lines)
+    if is_partial:
+        ans = "[PARTIAL GRAPH - Build still running]\n" + ans
+    return ans
 
 
 def _get_cost_report(root: str = ".") -> str:

@@ -68,6 +68,8 @@ LOGO = """
               help="Skip HTML graph generation (faster for CI).")
 @click.option("--out-dir", default="pruvagraph-out", show_default=True,
               help="Output directory name.")
+@click.option("--stream", is_flag=True,
+              help="[Arch1] Write partial graph during build — enables querying before completion.")
 @click.pass_context
 def main(
     ctx: click.Context,
@@ -82,6 +84,7 @@ def main(
     batch_tokens: int,
     no_viz: bool,
     out_dir: str,
+    stream: bool,
 ) -> None:
     """PruvaGraph — codebase knowledge graphs with 95%+ LLM cost reduction.\n
     Build a graph:\n
@@ -117,6 +120,7 @@ def main(
             max_tokens_per_batch=batch_tokens,
             no_viz=no_viz,
             out_dir=out_dir,
+            streaming=stream,
         )
     except BudgetExceededError as e:
         click.echo(f"\n⛔ {e}", err=True)
@@ -137,15 +141,31 @@ def main(
               type=click.Choice(["claude", "gemini", "kimi", "openai", "ollama"]))
 def query(question: str, root: str, backend: str) -> None:
     """Query the knowledge graph in natural language."""
-    graph_json = Path(root) / "pruvagraph-out" / "graph.json"
-    if not graph_json.exists():
+    out_dir = Path(root) / "pruvagraph-out"
+    try:
+        from pruvagraph.streaming import load_best_graph, get_build_status, partial_graph_note
+        G, is_partial = load_best_graph(out_dir)
+    except ImportError:
+        import networkx as nx
+        graph_json = out_dir / "graph.json"
+        if not graph_json.exists():
+            click.echo("No graph found. Run 'pruvagraph .' first.", err=True)
+            sys.exit(1)
+        G = nx.node_link_graph(json.loads(graph_json.read_text()))
+        is_partial = False
+
+    if G is None:
         click.echo("No graph found. Run 'pruvagraph .' first.", err=True)
         sys.exit(1)
 
-    import networkx as nx
+    if is_partial:
+        try:
+            status = get_build_status(out_dir)
+            click.echo(click.style(partial_graph_note(status.get("percent", 0)).strip(), fg="yellow"))
+        except Exception:
+            click.echo(click.style("⚠️  Note: Graph is partially built.", fg="yellow"))
 
     from pruvagraph.query import query as _query
-    G = nx.node_link_graph(json.loads(graph_json.read_text()))
     answer = _query(G, question, backend=backend)
     click.echo(answer)
 
@@ -261,14 +281,71 @@ def benchmark(root: str) -> None:
     click.echo(result)
 
 
+@main.command("build-from-lsp")
+@click.argument("lsp_json", type=click.Path(exists=True))
+@click.option("--backend", "-b", default="none")
+@click.option("--stream", is_flag=True)
+def build_from_lsp(lsp_json: str, backend: str, stream: bool) -> None:
+    """[N3] Fast Build bypassing Tree-sitter, using LSP symbols from IDE."""
+    import json
+    data = json.loads(Path(lsp_json).read_text(encoding="utf-8"))
+    
+    # Transform to pruvagraph internal format
+    extractions = []
+    for filepath, symbols in data.items():
+        nodes = []
+        for sym in symbols:
+            kind = sym.get("kind", "Unknown").lower()
+            name = sym.get("name", "")
+            if kind in ("class", "interface"):
+                ntype = "class"
+            elif kind in ("function", "method"):
+                ntype = "function"
+            elif kind in ("variable", "constant"):
+                ntype = "variable"
+            else:
+                ntype = "symbol"
+            
+            nodes.append({
+                "id": f"{Path(filepath).name}:{name}",
+                "name": name,
+                "type": ntype,
+                "label": f"[{ntype}] {name}",
+                "summary": sym.get("detail", ""),
+                "file": str(filepath)
+            })
+        extractions.append({"source_file": str(filepath), "nodes": nodes, "edges": []})
+
+    from pruvagraph.pipeline import build_graph_from_extractions
+    root = Path(lsp_json).parent.parent
+    result = build_graph_from_extractions(root, extractions, backend=backend, streaming=stream)
+    
+    click.echo(f"✓ N3 LSP Build complete. Graph: {result.node_count} nodes.")
+
 @main.command()
 @click.argument("root", default=".")
 def watch(root: str) -> None:
-    """Watch for file changes and auto-update the graph."""
+    """Watch for file changes and auto-update the graph (with Arch3 pre-warming)."""
     from pruvagraph.watch import watch_and_update
     click.echo(f"Watching {root} for changes... (Ctrl+C to stop)")
+    click.echo("  ⚡ Arch3 pre-warming active — answers pre-computed after each change")
     watch_and_update(Path(root))
 
+
+@main.command("build-status")
+@click.option("--root", default=".", show_default=True)
+def build_status_cmd(root: str) -> None:
+    """[Arch1] Show streaming build progress status."""
+    from pruvagraph.streaming import get_build_status
+    out_dir = Path(root) / "pruvagraph-out"
+    status = get_build_status(out_dir)
+    s = status.get("status", "idle")
+    pct = status.get("percent", 0)
+    done = status.get("files_done", 0)
+    total = status.get("files_total", 0)
+    msg = status.get("message", "")
+    icon = {"building": "🔨", "complete": "✅", "idle": "💤", "error": "❌"}.get(s, "❓")
+    click.echo(f"{icon} Build {s}: {done}/{total} files ({pct}%) — {msg}")
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Helpers

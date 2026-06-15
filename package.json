@@ -2,7 +2,7 @@
   "name": "pruvalex-pruvagraph",
   "displayName": "PRUVALEX PruvaGraph",
   "description": "🧠 Codebase knowledge graphs. 99%+ LLM cost reduction. Free local analysis — zero API cost for code.",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "publisher": "pruvalex",
   "license": "MIT",
   "icon": "icon.png",
@@ -53,7 +53,13 @@
         "command": "pruvagraph.build",
         "title": "Build Graph",
         "category": "PruvaGraph",
-        "icon": "$(graph)"
+        "icon": "$(zap)"
+      },
+      {
+        "command": "pruvagraph.buildFast",
+        "title": "Build Fast (LSP)",
+        "category": "PruvaGraph",
+        "icon": "$(rocket)"
       },
       {
         "command": "pruvagraph.query",

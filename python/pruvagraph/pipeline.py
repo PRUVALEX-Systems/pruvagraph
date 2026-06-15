@@ -49,6 +49,7 @@ class BuildConfig:
     force: bool = False          # ignore cache
     no_viz: bool = False         # skip HTML generation
     out_dir: str = _OUT_DIR
+    streaming: bool = False      # Arch1: write partial graph during build
 
 
 @dataclass
@@ -85,6 +86,7 @@ def build_graph(
     max_tokens_per_batch: int = 12_000,
     no_viz: bool = False,
     out_dir: str = _OUT_DIR,
+    streaming: bool = False,
 ) -> BuildResult:
     """
     Build a knowledge graph for *root* with maximum LLM cost reduction.
@@ -118,6 +120,7 @@ def build_graph(
         max_tokens_per_batch=max_tokens_per_batch,
         no_viz=no_viz,
         out_dir=out_dir,
+        streaming=streaming,
     )
     return _run_pipeline(cfg)
 
@@ -146,8 +149,8 @@ def _run_pipeline(cfg: BuildConfig) -> BuildResult:
     out_dir = cfg.root / cfg.out_dir
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    cache = GraphCache(cfg.root)
-    tracker = CostTracker(backend=cfg.backend, total_files=0)
+    # Arch1: streaming status tracker
+    stream_status = None
 
     # ── Stage 1: Discover files (N4: skip generated, Arch2: reputation) ────────
     from pruvagraph.generated_detector import filter_files
@@ -178,9 +181,20 @@ def _run_pipeline(cfg: BuildConfig) -> BuildResult:
     except Exception:
         reputation = None
 
+    cache = GraphCache(cfg.root)
+    tracker = CostTracker(backend=cfg.backend, total_files=0)
+
     code_files = [f for f, t in all_files if t == FileType.CODE]
     doc_files  = [f for f, t in all_files if t in (FileType.DOCUMENT, FileType.PAPER, FileType.IMAGE)]
     tracker._total_files = len(all_files)
+
+    # Arch1: initialise streaming status now we know total file count
+    if cfg.streaming:
+        try:
+            from pruvagraph.streaming import StreamStatus
+            stream_status = StreamStatus(out_dir, len(all_files))
+        except Exception:
+            stream_status = None
 
     all_extractions: list[dict[str, Any]] = []
 
@@ -225,8 +239,19 @@ def _run_pipeline(cfg: BuildConfig) -> BuildResult:
                 except Exception as e:
                     _rich_print(f"  ⚠ {path.name}: {e}", "yellow")
 
-    _rich_print(f"  ✓ {len(code_files) - len(code_to_extract)} cached, "
-                f"{len(code_to_extract)} extracted", "green")
+    _rich_print(
+        f"  ✓ {len(code_files) - len(code_to_extract)} cached, "
+        f"{len(code_to_extract)} extracted", "green"
+    )
+
+    # Arch1: checkpoint partial graph after code stage
+    if stream_status is not None:
+        try:
+            from pruvagraph.streaming import write_partial_graph
+            write_partial_graph(all_extractions, out_dir)
+            stream_status.update(len(code_files), "Code extraction complete — docs next")
+        except Exception:
+            pass
 
     # ── Stage 3: Doc/image files — N5+N1+A7 free parsers first ─────────────
     _rich_print(f"[Stage 2/5] Doc extraction — {len(doc_files)} files...", "cyan")
@@ -491,6 +516,15 @@ def _run_pipeline(cfg: BuildConfig) -> BuildResult:
 
     _rich_print("\n" + cost_report.format_summary(), "blue")
 
+    # Arch1: mark streaming complete + cleanup partial files
+    if stream_status is not None:
+        try:
+            stream_status.complete()
+            from pruvagraph.streaming import cleanup_partial
+            cleanup_partial(out_dir)
+        except Exception:
+            pass
+
     return BuildResult(
         graph_json_path=graph_json_path,
         html_path=html_path,
@@ -564,3 +598,86 @@ def _rich_print(msg: str, color: str = "white") -> None:
         Console().print(f"[{color}]{msg}[/{color}]")
     except ImportError:
         print(msg)
+
+
+def build_graph_from_extractions(
+    root: str | Path,
+    extractions: list[dict[str, Any]],
+    backend: str = "none",
+    streaming: bool = False,
+) -> BuildResult:
+    """
+    [N3] Fast-path pipeline: skips AST parsing and file I/O.
+    Takes pre-computed extractions (e.g. from LSP in VS Code) directly to graph.
+    """
+    start = time.time()
+    cfg = BuildConfig(root=Path(root).resolve(), backend=backend, streaming=streaming)
+    out_dir = cfg.root / cfg.out_dir
+    out_dir.mkdir(parents=True, exist_ok=True)
+    
+    stream_status = None
+    if streaming:
+        try:
+            from pruvagraph.streaming import StreamStatus
+            stream_status = StreamStatus(out_dir, len(extractions))
+            stream_status.update(len(extractions), "Extractions loaded via LSP")
+        except Exception:
+            pass
+
+    from pruvagraph.analyze import analyze
+    from pruvagraph.build import build_nx_graph
+    from pruvagraph.cluster import cluster_leiden
+    from pruvagraph.export import export_graph
+    from pruvagraph.report import render_report
+
+    _rich_print(f"\n[N3] Fast Build: {len(extractions)} files injected directly.", "green")
+
+    _rich_print("[Stage 3/5] Building graph...", "cyan")
+    G = build_nx_graph(extractions)
+
+    _enrich_with_docstrings(G, cfg.root)
+
+    _rich_print("[Stage 4/5] Community detection (Leiden)...", "cyan")
+    G = cluster_leiden(G)
+
+    _rich_print("[Stage 5/5] Analyzing + enriching + exporting...", "cyan")
+    analysis = analyze(G)
+    report_md = render_report(G, analysis)
+    (out_dir / "GRAPH_REPORT.md").write_text(report_md, encoding="utf-8")
+
+    # A3 + N8
+    try:
+        from pruvagraph.community_summary import generate_community_summaries
+        generate_community_summaries(G, out_dir, backend="none")
+    except Exception:
+        pass
+
+    try:
+        from pruvagraph.hierarchy import build_summary_hierarchy
+        build_summary_hierarchy(G, out_dir, backend="none")
+    except Exception:
+        pass
+
+    graph_json_path, html_path = export_graph(G, out_dir, no_viz=cfg.no_viz)
+
+    if stream_status is not None:
+        try:
+            stream_status.complete()
+            from pruvagraph.streaming import cleanup_partial
+            cleanup_partial(out_dir)
+        except Exception:
+            pass
+
+    cost_report = CostTracker(backend=backend, total_files=len(extractions)).finalize(out_dir)
+    duration = time.time() - start
+
+    return BuildResult(
+        graph_json_path=graph_json_path,
+        html_path=html_path,
+        report_path=out_dir / "GRAPH_REPORT.md",
+        cost_report=cost_report,
+        node_count=G.number_of_nodes(),
+        edge_count=G.number_of_edges(),
+        community_count=len({d.get("community") for _, d in G.nodes(data=True) if d.get("community")}),
+        duration_seconds=duration,
+    )

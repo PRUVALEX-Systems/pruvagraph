@@ -39,6 +39,7 @@ function activate(context) {
   // Register commands
   const cmds = [
     ['pruvagraph.build',       () => runBuild(provider)],
+    ['pruvagraph.buildFast',   () => runBuildFast(provider)],
     ['pruvagraph.query',       () => runQuery(provider)],
     ['pruvagraph.costReport',  () => runCostReport(provider)],
     ['pruvagraph.installMCP',  () => runInstallMCP(provider)],
@@ -95,6 +96,7 @@ class PruvaGraphViewProvider {
     webviewView.webview.onDidReceiveMessage(msg => {
       switch (msg.command) {
         case 'build':       return runBuild(this);
+        case 'buildFast':   return runBuildFast(this);
         case 'query':       return runQuery(this, msg.text);
         case 'costReport':  return runCostReport(this);
         case 'installMCP':  return runInstallMCP(this);
@@ -138,13 +140,76 @@ async function runBuild(provider) {
   provider.post('buildStart', { root });
   log(`Building graph for ${root} …`);
 
-  const args = ['.', '--backend', backend, '--dedup-threshold', String(dedup)];
+  const args = ['.', '--backend', backend, '--dedup-threshold', String(dedup), '--stream'];
 
   await runCLI('pruvagraph', args, root, provider, (line) => {
     provider.post('buildLog', { line });
   });
 
   // After build, send updated status
+  await sendStatus(provider);
+}
+
+// N3 Layer: LSP Extraction
+async function extractSymbolsViaLSP(uri) {
+  try {
+    const symbols = await vscode.commands.executeCommand('vscode.executeDocumentSymbolProvider', uri);
+    if (!symbols) return [];
+    
+    // Map DocumentSymbol to simple node format
+    return symbols.map(sym => ({
+      name: sym.name,
+      detail: sym.detail || '',
+      kind: vscode.SymbolKind[sym.kind] || 'Unknown',
+      range: {
+        start: { line: sym.range.start.line, character: sym.range.start.character },
+        end: { line: sym.range.end.line, character: sym.range.end.character }
+      }
+    }));
+  } catch (e) {
+    return [];
+  }
+}
+
+async function runBuildFast(provider) {
+  const root = getWorkspaceRoot();
+  if (!root) { return noWorkspace(); }
+
+  provider.post('buildStart', { root });
+  log(`[N3] Fast Building via LSP for ${root} …`);
+
+  // 1. Gather all workspace files (limit to standard code files for speed)
+  const files = await vscode.workspace.findFiles('**/*.{py,js,ts,jsx,tsx,java,go,rs}', '**/node_modules/**');
+  
+  // 2. Extract symbols via LSP for open/available files
+  const extractions = {};
+  provider.post('buildLog', { line: `[N3] Found ${files.length} files. Extracting LSP symbols...` });
+  
+  let count = 0;
+  for (const file of files.slice(0, 50)) { // limit to 50 for demo/speed
+    const syms = await extractSymbolsViaLSP(file);
+    if (syms && syms.length > 0) {
+      extractions[file.fsPath] = syms;
+      count++;
+    }
+  }
+
+  provider.post('buildLog', { line: `[N3] Extracted symbols for ${count} files. Passing to pipeline...` });
+
+  // 3. Save to temp file
+  const outDir = path.join(root, 'pruvagraph-out');
+  if (!fs.existsSync(outDir)) { fs.mkdirSync(outDir, { recursive: true }); }
+  const tmpPath = path.join(outDir, 'lsp_extractions.json');
+  fs.writeFileSync(tmpPath, JSON.stringify(extractions, null, 2), 'utf-8');
+
+  // 4. Pass to CLI
+  const cfg = vscode.workspace.getConfiguration('pruvagraph');
+  const backend = cfg.get('llmBackend', 'none');
+
+  await runCLI('pruvagraph', ['build-from-lsp', tmpPath, '--backend', backend, '--stream'], root, provider, (line) => {
+    provider.post('buildLog', { line });
+  });
+
   await sendStatus(provider);
 }
 
@@ -684,6 +749,11 @@ body { background: var(--bg); color: var(--text);
     <span class="btn-icon">⚡</span>
     <span class="btn-label">Build Graph</span>
     <span style="font-size:9px;opacity:0.7">Ctrl+Shift+G</span>
+  </button>
+  <button class="btn" onclick="send('buildFast')">
+    <span class="btn-icon">🚀</span>
+    <span class="btn-label">Build Fast (LSP)</span>
+    <span class="btn-badge" style="background:var(--green);color:#000">N3</span>
   </button>
   <button class="btn" onclick="send('query')">
     <span class="btn-icon">🔍</span>

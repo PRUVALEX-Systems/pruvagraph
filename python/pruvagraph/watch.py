@@ -6,6 +6,10 @@ Falls back to polling if watchdog is not available.
 
 Incremental mode: only re-extracts files that changed since the last run.
 This makes watch mode almost free: cache hit rate is ~99% per commit.
+
+Arch3: After each rebuild, Predictive Pre-warming launches in background.
+  Predicts likely developer queries from changed filenames, pre-computes
+  free-tier answers, stores in QueryCache → instant response next query.
 """
 from __future__ import annotations
 
@@ -34,6 +38,7 @@ def _watch_watchdog(root: Path, out_dir: str) -> None:
     from watchdog.observers import Observer
 
     _debounce: dict[str, float] = {}
+    _changed_since_rebuild: list[str] = []
     DEBOUNCE_SECONDS = 2.0
 
     class Handler(FileSystemEventHandler):
@@ -41,7 +46,9 @@ def _watch_watchdog(root: Path, out_dir: str) -> None:
             if event.is_directory:
                 return
             path = Path(str(event.src_path))
-            _maybe_rebuild(root, path, _debounce, DEBOUNCE_SECONDS, out_dir)
+            _changed_since_rebuild.append(str(path))
+            _maybe_rebuild(root, path, _debounce, DEBOUNCE_SECONDS, out_dir,
+                           _changed_since_rebuild)
 
         def on_created(self, event: FileSystemEvent) -> None:
             self.on_modified(event)
@@ -85,7 +92,7 @@ def _watch_polling(root: Path, out_dir: str) -> None:
 
             if changed:
                 print(f"  ↻ {len(changed)} file(s) changed, rebuilding …")
-                _rebuild(root, out_dir)
+                _rebuild(root, out_dir, changed)
 
             last_mtimes = current
             time.sleep(3)
@@ -111,6 +118,7 @@ def _maybe_rebuild(
     debounce: dict[str, float],
     debounce_sec: float,
     out_dir: str,
+    changed_files: list[str],
 ) -> None:
     """Rebuild only if the file extension is worth tracking and debounce has elapsed."""
     if changed_path.suffix.lower() not in _WATCHED_EXTENSIONS:
@@ -131,10 +139,12 @@ def _maybe_rebuild(
     debounce[key] = now
 
     print(f"  ↻ Changed: {changed_path.name}")
-    _rebuild(root, out_dir)
+    snapshot = list(changed_files)
+    changed_files.clear()
+    _rebuild(root, out_dir, snapshot)
 
 
-def _rebuild(root: Path, out_dir: str) -> None:
+def _rebuild(root: Path, out_dir: str, changed_files: list[str] | None = None) -> None:
     """Trigger an incremental rebuild (cache-aware — only changed files re-extracted)."""
     try:
         from pruvagraph.pipeline import build_graph
@@ -146,3 +156,12 @@ def _rebuild(root: Path, out_dir: str) -> None:
         )
     except Exception as e:
         print(f"  ⚠ Rebuild error: {e}")
+        return
+
+    # Arch3: Pre-warm likely queries in background after rebuild
+    if changed_files:
+        try:
+            from pruvagraph.prewarm import prewarm_in_background
+            prewarm_in_background(changed_files, root)
+        except Exception:
+            pass

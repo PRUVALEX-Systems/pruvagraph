@@ -2,6 +2,18 @@
 
 All notable changes to PRUVALEX PruvaGraph are documented here.
 
+## [1.2.0] — 2026-06-15
+
+### Added — The Final 3 Architecture Layers (total: 28)
+
+- **Arch1 (Streaming Graph Build)**: Zero-wait UX. Queries can now be run against partial graph data *while* the build is ongoing. Added `--stream` flag and `build-status` CLI subcommand.
+- **Arch3 (Predictive Pre-warming)**: Zero-latency answers. Predicts developer queries based on changed files (e.g., editing `auth.py` predicts "how does auth work?") and pre-computes answers in the background using the free-tier pipeline.
+- **N3 (VS Code LSP Integration)**: Lightning fast graph building via `build-from-lsp`. Extracts symbols using VS Code's internal language server (bypassing tree-sitter completely) to build a fast structural graph in seconds.
+
+### Changed
+- Finalised layer count to 28.
+- Added `pruvagraph.buildFast` command to VS Code extension sidebar.
+
 ## [1.1.0] — 2026-06-15
 
 ### Added — 18 new cost-reduction layers (total: 25)
