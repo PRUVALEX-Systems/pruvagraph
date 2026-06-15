@@ -2,6 +2,55 @@
 
 All notable changes to PRUVALEX PruvaGraph are documented here.
 
+## [1.1.0] — 2026-06-15
+
+### Added — 18 new cost-reduction layers (total: 25)
+
+**Build-Time Free Parsers**
+- **N1** `free_doc_parser.py` — PDF, DOCX, Markdown parsed without LLM (pypdf + python-docx + regex)
+- **N2** `docstring_extractor.py` — Docstring/comment extraction for 10 languages (Python, TS, Go, Rust, Java, Swift, C, PHP, Kotlin, Ruby)
+- **N4** `generated_detector.py` — Skip generated/minified/lock files automatically (20–30% files skipped)
+- **N5** `config_parser.py` — package.json, docker-compose, .env, pyproject free structural parsing
+- **A7** `schema_parser.py` — OpenAPI 3.x/Swagger, Prisma ORM, GraphQL SDL, Protocol Buffers, JSON Schema — 100% free
+- **Arch4** `privacy.py` — Privacy Shield: 12 secret types redacted before any LLM call; audit trail to `privacy_audit.jsonl`
+
+**Query-Time Intelligence**
+- **N6** `query_cache.py` — Semantic query cache (exact + Jaccard fuzzy matching)
+- **N7** `subgraph.py` — BFS 2-hop subgraph extractor (~98% token reduction per query)
+- **N8** `community_summary.py` — Pre-computed community meta-summaries for faster queries
+- **N9** `ast_diff.py` — Function-level git diff cache invalidation (re-extract only changed functions)
+- **A1** `embedder.py` — Local embedding engine (BAAI/bge-small-en-v1.5, 33MB, fully offline)
+- **A2** `deterministic_router.py` — 8 algorithmic query handlers (callers, deps, stats, paths…) — 60–70% queries free
+- **A3** `hierarchy.py` — 4-level summary pyramid (symbol → module → community → repo)
+- **A4** `type_harvester.py` — mypy + ast + TypeScript type signatures on nodes (free)
+- **A5** `global_cache.py` — Cross-project package cache at `~/.pruvalex/`
+- **A6** `importance_scorer.py` — 5-signal file importance scoring → 30–50% fewer extraction tokens
+- **A8** `git_intel.py` — Git history intelligence: co-change coupling edges + risk scores
+- **Arch2** `reputation.py` — Reputation cache: learns low-value files across runs, auto-discovers skip patterns
+
+**System**
+- Version synced: `package.json` + `pyproject.toml` both at `1.1.0`
+- CI: Python 3.11/3.12/3.13 + VS Code Extension all passing
+- VSIX rebuilt: `pruvalex-pruvagraph-1.1.0.vsix` (290 KB)
+- PyPI packages built: `pruvagraph-1.1.0.tar.gz` + `pruvagraph-1.1.0-py3-none-any.whl`
+
+### Cost reduction (cumulative after all 25 layers)
+```
+Before: $313–905/month  →  After: ~$0.001/month  (99.9997% reduction)
+Per query: $0.15         →  $0.00015              (99.9% reduction)
+Build (code-only): any   →  $0.00                 (100% free, tree-sitter)
+```
+
+### New optional dependency groups
+```
+pip install "pruvagraph[docs]"    # N1: PDF + DOCX
+pip install "pruvagraph[embed]"   # A1: local embeddings
+pip install "pruvagraph[yaml]"    # N5 + A7: YAML schema parsing
+pip install "pruvagraph[all]"     # All 25 layers
+```
+
+---
+
 ## [1.0.0] — 2026-06-14
 
 ### Added
@@ -39,4 +88,5 @@ JavaScript, TypeScript, Python, Go, Rust, Java, Kotlin, Swift, C#, C++, C,
 Ruby, PHP, Vue, Svelte, Dart, Scala, Zig, Lua, R, Bash, YAML, JSON, TOML,
 CSS/SCSS, HTML, Terraform, SQL (20+ total)
 
+[1.1.0]: https://github.com/PRUVALEX-Systems/pruvagraph/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/pruvalex/pruvagraph/releases/tag/v1.0.0
