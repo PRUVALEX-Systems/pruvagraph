@@ -32,8 +32,8 @@ Usage in mcp_server.py:
 """
 from __future__ import annotations
 
-import time
 from dataclasses import dataclass, field
+from time import monotonic
 from typing import Any
 
 
@@ -47,7 +47,7 @@ class _NodeRecord:
     node_id:   str
     tool:      str          # "get_summary" | "get_dependencies" | "find_callers"
     turn:      int          # MCP call counter at the time of first return
-    timestamp: float = field(default_factory=time.monotonic)
+    timestamp: float = field(default_factory=monotonic)
 
 
 class SessionTracker:

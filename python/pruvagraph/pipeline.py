@@ -189,7 +189,9 @@ def _is_repo_unchanged(cfg: "BuildConfig") -> bool:
         return False
 
     try:
-        import subprocess, shutil
+        import shutil
+        import subprocess
+
         if not shutil.which("git"):
             return False
 
@@ -249,10 +251,14 @@ def _run_pipeline(cfg: BuildConfig) -> BuildResult:
         # Return a BuildResult that reads the existing graph stats without rebuilding
         try:
             import json as _json
+
             import networkx as _nx
+
+            from pruvagraph.cost import CostReport
+
             graph_path = out_dir / "graph.json"
             G_existing = _nx.node_link_graph(_json.loads(graph_path.read_text(encoding="utf-8")))
-            from pruvagraph.cost import CostReport
+
             cr = CostReport()
             cost_json = out_dir / "cost_report.json"
             if cost_json.exists():
