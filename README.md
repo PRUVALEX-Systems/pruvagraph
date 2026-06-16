@@ -1,8 +1,5 @@
 <div align="center">
 
-<img width="2659" height="984" alt="PRUVALEX" src="https://github.com/user-attachments/assets/1926ba88-80be-4bb1-a58d-58189ea983d2" />
-
-
 # PruvaGraph
 
 **Codebase knowledge graphs with 100% local parsing for code & configs.**
@@ -17,7 +14,7 @@ Built for developers who love Claude Code — but not the bill.
 [![License: MIT](https://img.shields.io/badge/License-MIT-00E57A?style=flat-square)](./LICENSE)
 [![CI](https://img.shields.io/github/actions/workflow/status/PRUVALEX-Systems/pruvagraph/ci.yml?style=flat-square&label=CI)](https://github.com/PRUVALEX-Systems/pruvagraph/actions)
 [![Python](https://img.shields.io/badge/Python-3.11%20%7C%203.12%20%7C%203.13-5B5BFF?style=flat-square)](https://pypi.org/project/pruvagraph)
-[![Version](https://img.shields.io/badge/Version-1.3.0-00E57A?style=flat-square)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/Version-1.4.0-00E57A?style=flat-square)](./CHANGELOG.md)
 
 </div>
 
@@ -27,7 +24,7 @@ Built for developers who love Claude Code — but not the bill.
 
 Standard tools send every file to an LLM on every run. PruvaGraph has 31 layers that make sure almost nothing ever reaches an LLM at all.
 
-| | Other tools | PruvaGraph v1.3.0 |
+| | Other tools | PruvaGraph v1.4.0 |
 |---|---|---|
 | 10,000-file repo, daily CI | LLM extraction for everything | **0 LLM calls for code/configs** |
 | Re-run (unchanged files) | Full LLM scan again | **Instant cache — $0.00** |
@@ -40,7 +37,7 @@ Standard tools send every file to an LLM on every run. PruvaGraph has 31 layers 
 | Secrets in code | Sent to LLM | **Redacted — privacy shield** |
 | Data sovereignty | Cloud-dependent | **100% local, no server** |
 
-**Result:** After 28 layers, the only files that cost money are image-only PDFs (no text layer) and genuinely novel creative queries. Everything else is handled locally for free.
+**Result:** After 31 layers, the only files that cost money are image-only PDFs (no text layer) and genuinely novel creative queries. Everything else is handled locally for free.
 
 ---
 
@@ -99,7 +96,7 @@ Or press `Ctrl+Shift+P` → **PruvaGraph: Build Graph**.
 |---|---|
 | `Ctrl+Shift+G` | Build Graph |
 | `Ctrl+Shift+/` | Query Codebase |
-| `Ctrl+Shift+P` → `PruvaGraph: ...` | All 12 commands |
+| `Ctrl+Shift+P` → `PruvaGraph: ...` | All 15 commands |
 
 ### Sidebar Panel
 
@@ -128,7 +125,7 @@ pruvagraph . install --claude-code
 
 This writes to `~/.claude/mcp_config.json` and creates `CLAUDE.md` automatically.
 
-### 6 MCP Tools Available
+### 9 MCP Tools Available
 
 | Tool | Example |
 |---|---|
@@ -138,43 +135,21 @@ This writes to `~/.claude/mcp_config.json` and creates `CLAUDE.md` automatically
 | `get_summary` | `"Give me a one-line summary of CostTracker"` |
 | `list_communities` | `"What are the architectural modules in this repo?"` |
 | `cost_report` | `"How much did we save on the last build?"` |
+| `get_graph_diff` | `"What architectural changes happened since the last commit?"` |
+| `analyze_impact` | `"What breaks if I change AuthMiddleware?"` |
+| `list_packages` | `"What packages exist in this monorepo?"` |
 
 ---
 
-## 28-Layer Architecture
+## 31-Layer Architecture
 
 > "The best API call is the one you never make."
 
-### Build-Time Layers
+PruvaGraph implements 31 specialized layers across three stages to minimize LLM usage and maximize offline processing:
 
-| Layer | Name | Mechanism | When It Fires |
-|---|---|---|---|
-| **L1** | SHA-256 Cache | 3-layer hash + stat + AST fingerprint | Every re-run |
-| **L2** | MinHash Dedup | Jaccard similarity grouping (threshold tunable) | Before any LLM batch |
-| **L3** | Batch Packing | Token-aware First-Fit Decreasing bin packing | Before any LLM call |
-| **L4** | LLM Cascade | Ollama (free) → Gemini ($0.075/M) → Claude ($3/M) | Per batch |
-| **L5** | Token Compression | Regex strip: licenses, imports, redundant comments | Before any LLM call |
-| **L7** | Prompt Cache | Claude `cache_control` — 88% discount on prefix tokens | Every Claude call |
-| **N1** | Free Doc Parser | `pypdf` + `python-docx` + Markdown AST — no LLM | PDF, DOCX, MD files |
-| **N2** | Docstring Extractor | Python/JSDoc/GoDoc/JavaDoc/RustDoc → free summaries | Documented code |
-| **N4** | Generated Detector | Filename + content signatures → auto-skip | Lock files, minified, generated |
-| **N5** | Config Parser | JSON/YAML/TOML structural extraction — no LLM | All config files |
-| **A5** | Global Pkg Cache | Cross-project `~/.pruvalex/` cache keyed by `pkg@version` | Known packages |
-| **A6** | Importance Scorer | 5-signal score → extraction depth (full/standard/minimal/name) | Every file |
-| **A7** | Schema Parser | OpenAPI/Prisma/GraphQL/Proto — zero LLM | Schema files |
-| **A8** | Git Intelligence | `git log` → co-change edges + risk scores | On build |
-| **Arch2** | Reputation Cache | Learns low-value file patterns across runs | After run 2+ |
-| **Arch4** | Privacy Shield | 12 secret types redacted before any LLM call | Every batch |
-
-### Post-Graph Layers
-
-| Layer | Name | Output |
-|---|---|---|
-| **L6** | Leiden Clustering | Community IDs on every node |
-| **N8** | Community Summary | Pre-computed natural language description per cluster |
-| **A3** | Hierarchy Chain | 4-level summary pyramid (repo → community → module → symbol) |
-| **A4** | Type Harvester | Type signatures harvested from `mypy` + AST |
-| **A1** | Embedding Index | `node_embeddings.npy` — offline semantic search, no LLM |
+- **Build-Time (21 layers):** Fast local algorithms replace LLM extraction. Features local tree-sitter parsing, MinHash deduplication, config/schema parsers, git intelligence, and monorepo auto-detection.
+- **Post-Graph (5 layers):** Enriches the graph with Leiden community clustering, type harvesting, hierarchical summaries, and offline embeddings.
+- **Query-Time (5 layers):** Implements a highly optimized routing pipeline where graph diffs and impact analysis are computed structurally rather than generationally.
 
 ### Query-Time: 5-Tier Pipeline
 
@@ -219,31 +194,12 @@ Question ──► Tier 0: Query Cache (N6)        ──► exact + fuzzy-match
 
 ### What Still Costs Money
 
-After 28 layers, the only remaining cost is:
+After 31 layers, the only remaining cost is:
 
 - **Image-only PDFs** — no text layer, requires vision LLM
 - **Genuinely novel complex queries** — the truly creative ones Tier 1–3 can't answer
 
 Everything else — all code, all configs, all schemas, all structured docs, all known queries — is handled locally for free.
-
-### Layer-by-Layer Savings
-
-| Layer | Typical Savings | Notes |
-|---|---|---|
-| L1 SHA-256 Cache | ~80–90% on re-runs | Gets better every run |
-| L2 MinHash Dedup | ~40–60% additional | 40 similar files → 1 call |
-| L3 Batch Packing | ~5×–10× fewer calls | Token-aware, not fixed |
-| L4 LLM Cascade | Uses cheapest viable model | Code → $0.00 always |
-| L5 Token Compression | −50–80% tokens per call | License headers, imports |
-| L7 Prompt Cache | −88% on prefix tokens | 5-min TTL cache |
-| N1 Free Doc Parser | ~60% of doc files | PDF, DOCX, Markdown |
-| N2 Docstring Extractor | ~70% summaries free | Well-documented code |
-| N4 Generated Detector | ~20–30% files skipped | Lock files, min.js |
-| N5 Config Parser | 100% configs free | package.json, docker-compose |
-| A2 Deterministic Router | ~60–70% queries free | 8 algorithmic patterns |
-| A6 Importance Scorer | Lower depth for low-value | Config-sized extractions |
-| A7 Schema Parser | 100% schemas free | OpenAPI, Prisma, GraphQL |
-| Arch2 Reputation | +10–30% cumulative | Learns over time |
 
 ---
 
@@ -366,7 +322,7 @@ Every redaction is logged to `pruvagraph-out/privacy_audit.jsonl`. Zero performa
 ## Optional Extras
 
 ```bash
-pip install "pruvagraph[all]"           # Everything — all 28 layers
+pip install "pruvagraph[all]"           # Everything — all 31 layers
 
 # Individual groups:
 pip install "pruvagraph[docs]"          # N1: PDF + DOCX (pypdf, python-docx)
@@ -399,7 +355,7 @@ pip install "pruvagraph[office]"        # DOCX + XLSX (python-docx, openpyxl)
 
 ## How It Compares
 
-| Feature | Other Tools | PruvaGraph v1.2.0 |
+| Feature | Other Tools | PruvaGraph v1.4.0 |
 |---|---|---|
 | Code extraction | LLM (costs money) | ✅ Tree-sitter local (always free) |
 | Config files | LLM | ✅ Structural parser (free) |
@@ -413,7 +369,7 @@ pip install "pruvagraph[office]"        # DOCX + XLSX (python-docx, openpyxl)
 | Budget control | None | ✅ Hard cap + dry-run |
 | Improves over time | No | ✅ Reputation cache learns |
 | VS Code extension | Rarely | ✅ Marketplace + sidebar |
-| MCP server | Basic | ✅ 6 rich tools |
+| MCP server | Basic | ✅ 9 rich tools |
 | Watch mode | No | ✅ File-event driven |
 | Git intelligence | No | ✅ Co-change + risk scores |
 | Importance scoring | No | ✅ 5-signal depth control |

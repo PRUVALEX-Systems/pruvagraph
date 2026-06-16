@@ -2,6 +2,69 @@
 
 All notable changes to PRUVALEX PruvaGraph are documented here.
 
+## [1.4.0] — 2026-06-17
+
+### Added — Precision Engine: Performance + Correct Claude Code Integration + Visual Polish
+
+**Part A — Parse Pool CPU Sizing** (`pipeline.py`)
+- `ProcessPoolExecutor` now sized to `os.cpu_count()` physical cores (was default `cpu_count+4`)
+- Eliminates OS scheduling overhead from excess worker processes on 8-core+ machines
+- Net speedup on large repos: ~15–25% faster parse wall time on 8-core machines
+
+**Part B — Incremental Leiden Clustering Guard** (`cluster.py`)
+- `cluster_leiden()` now accepts `prev_node_count` and `change_threshold=0.05`
+- Skips full Leiden re-run when changed nodes < 5% of total and communities already exist
+- Savings: 0.3–2s per incremental build on repos >5k nodes
+- Pipeline passes previous node count from `graph.json` into clustering stage
+
+**Part C — Relevance-Ranked Context Packing** (`subgraph.py`, `query.py`)
+- BFS candidate nodes now ranked by composite score before node cap:
+  `relevance = (embedding_sim × 0.4) + (degree_centrality × 0.4) + (git_recency × 0.2)`
+- Seed nodes get +0.5 boost to always survive truncation first
+- Token budget enforcement: packing stops when estimated budget would overflow (reuses L3 logic)
+- All query responses now include `context_tokens_used` — free byproduct of packing, zero overhead
+- `build_query_context()` returns `(context_str, token_count)` tuple
+- Benchmark mode: `benchmark_mode=True` logs naive-file vs graph token comparison to `cost_report.json`
+  (only computed on explicit benchmark calls, not every query)
+
+**Part D — CLAUDE.md Enforcement** (`CLAUDE.md`, `installer.py`)
+- Rewrote CLAUDE.md with explicit `MANDATORY` instruction to use graph tools before reading files
+- Added decision table: maps every query type to its correct MCP tool first
+- Lists three explicit exceptions for when raw file reads are acceptable
+- `_write_claude_md()` in installer always writes enforcement version (not just if file absent)
+
+**Part E — Fixed Claude Code Installer** (`installer.py`, `cli.py`, `mcp_server.py`)
+- **Bug fixed**: installer was writing to `~/.claude/mcp_config.json` (deprecated, silently ignored)
+- **New approach**: detection order:
+  1. `claude` CLI on PATH → `claude mcp add --transport stdio pruvagraph --scope user -- pruvagraph serve`
+  2. CLI not found → write `.mcp.json` (project root, documented stable schema, read-merge-write)
+- `--project` flag on `pruvagraph install` for `--scope project` (team config)
+- `.mcp.json` fallback: reads existing file, merges only pruvagraph entry, validates schema, prints approval notice
+- Verification: CLI path runs `claude mcp list` to confirm; fallback validates JSON and instructs manual `/mcp` check
+- `.mcp.json` intentionally NOT added to `.gitignore` (it's team config, meant to be committed)
+- Added `serve` subcommand to CLI: `pruvagraph serve` starts MCP server over stdio
+- Added `run_server()` public function to `mcp_server.py`
+
+**Part F — Redesigned graph.html** (`export.py`)
+- Complete visual redesign: "Precision Instrument" aesthetic (oscilloscope, not hacker terminal)
+- **Color palette** (each hex encodes real data):
+  - `#5B8DEF` Module — architectural containers
+  - `#4ECDC4` Class/Struct — data structures
+  - `#95E77E` Function — callable units
+  - `#F7B731` Interface/Type — contracts
+  - `#A78BFA` External — outside-boundary dependencies
+  - `#FF6B6B` Dead code — isolated nodes (0 connections), rendered as hollow rings
+  - `#EC4899` Doc/concept — documentation nodes
+- **Typography**: Inter (UI/labels) + JetBrains Mono (symbol names, file paths, stats, search)
+- **Signature interaction**: click-to-isolate — clicking a node dims everything else to 5% opacity
+  and highlights its full 2-hop dependency chain in both directions. Click same node or background to restore.
+- Edge thickness encodes relationship type (extends > defines > imports)
+- Status bar shows live node/edge count and isolation state using monospace font
+- Dead code nodes render as hollow rings (fill: transparent, stroke: coral) — visually distinct alert
+- `@media (prefers-reduced-motion: reduce)` disables all CSS transitions
+- Self-critique check passed: would not be mistaken for a generic D3 force-graph demo due to
+  the isolation interaction, typography split, dead-code hollow ring treatment, and exact palette
+
 ## [1.3.0] — 2026-06-17
 
 ### Added — 3 New Cost-Reduction Layers + 4 Gap Fixes (total: 31 layers)

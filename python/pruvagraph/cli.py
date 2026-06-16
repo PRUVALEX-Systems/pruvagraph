@@ -239,7 +239,9 @@ def export(root: str, fmt: str) -> None:
               help="Register MCP server for Claude Code.")
 @click.option("--hooks", is_flag=True,
               help="[Gap 1] Install Claude Code PreToolUse hooks — hard Read enforcement.")
-def install(root: str, vscode: bool, cursor: bool, claude_code: bool, hooks: bool) -> None:
+@click.option("--project", "project_scope", is_flag=True,
+              help="Use --scope project (team config in .mcp.json) instead of --scope user.")
+def install(root: str, vscode: bool, cursor: bool, claude_code: bool, hooks: bool, project_scope: bool) -> None:
     """Write IDE integration files (CLAUDE.md, MCP config, optional hooks)."""
     from pruvagraph.installer import install_all
     all_flags = not vscode and not cursor and not claude_code and not hooks
@@ -248,13 +250,36 @@ def install(root: str, vscode: bool, cursor: bool, claude_code: bool, hooks: boo
         vscode=vscode or all_flags,
         cursor=cursor or all_flags,
         claude_code=claude_code or all_flags,
-        hooks=hooks,   # Gap 1: opt-in, not on by default for --all
+        hooks=hooks,
+        project_scope=project_scope,
     )
     click.echo("✓ Integration files written.")
     if hooks:
         click.echo(
             "  → Restart Claude Code to activate PreToolUse hook enforcement."
         )
+
+
+# ── Part E: serve subcommand ─────────────────────────────────────────────────
+
+@main.command("serve")
+@click.option("--root", default=".", show_default=True,
+              help="Project root to use for graph files.")
+def serve_cmd(root: str) -> None:
+    """Start the MCP server over stdio (used by `claude mcp add`).
+
+    This is the entry point registered by the Claude Code installer:
+        claude mcp add --transport stdio pruvagraph -- pruvagraph serve
+
+    The server reads graph.json from <root>/pruvagraph-out/ and exposes
+    9 MCP tools (query_graph, get_dependencies, find_callers, get_summary,
+    list_communities, cost_report, get_graph_diff, analyze_impact, list_packages).
+    """
+    import os
+    # Set the root so the MCP server knows where to find graph.json
+    os.environ["PRUVAGRAPH_ROOT"] = str(Path(root).resolve())
+    from pruvagraph.mcp_server import run_server
+    run_server()
 
 
 @main.group()

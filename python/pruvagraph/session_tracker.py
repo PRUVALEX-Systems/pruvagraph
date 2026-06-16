@@ -30,6 +30,7 @@ Usage in mcp_server.py:
         record_seen(node_id, tool="get_summary")
         return result
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field

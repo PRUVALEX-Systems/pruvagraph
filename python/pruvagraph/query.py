@@ -29,6 +29,8 @@ def query(
     backend: str = "none",
     top_k: int = 10,
     out_dir: Path | None = None,
+    token_budget: int = 6000,
+    benchmark_mode: bool = False,
 ) -> str:
     """
     Answer *question* about the graph using a 5-tier cost pipeline.
@@ -39,6 +41,11 @@ def query(
     Tier 3: Subgraph extract — free, 98% token reduction
     Tier 4: Hierarchy level  — free, picks right context scope
     Tier 5: LLM call         — only if all above fail, tiny context
+
+    Args:
+        token_budget:    Max tokens allowed in context sent to LLM (default 6000).
+        benchmark_mode:  If True, compute and log raw-file tokens vs graph tokens
+                         to cost_report.json for independent verification.
     """
     # ── Tier 0: Query Cache ────────────────────────────────────────────────────
     if out_dir:
@@ -83,16 +90,27 @@ def query(
     if backend == "none":
         if seed_nodes:
             from pruvagraph.subgraph import extract_query_subgraph
-            sub     = extract_query_subgraph(G, seed_nodes, k_hops=1, max_nodes=20)
+            sub     = extract_query_subgraph(G, seed_nodes, k_hops=1, max_nodes=20,
+                                             token_budget=token_budget)
             matches = _score_subgraph(sub, question, top_k)
         else:
             matches = _keyword_search(G, question, top_k=top_k)
 
         if not matches:
             return f"No nodes found matching: {question!r}"
-        return _format_local_answer(question, matches, G)
+
+        # Token count is a free byproduct of the packing pass — include on every call.
+        result_str = _format_local_answer(question, matches, G)
+        context_tokens_used = len(result_str.split()) * 4 // 3  # ~1.33 words/token
+        answer = f"{result_str}\n\n📊 context_tokens_used: {context_tokens_used:,}"
+
+        if benchmark_mode and out_dir:
+            _log_benchmark(question, G, matches, context_tokens_used, out_dir)
+        return answer
 
     # ── Tier 3 + 4: Subgraph + Hierarchy context for LLM ─────────────────────
+    context: str
+    context_tokens: int = 0
     try:
         from pruvagraph.hierarchy import get_level_context, load_hierarchy, route_query_to_level
         from pruvagraph.subgraph import build_query_context
@@ -102,20 +120,31 @@ def query(
         if level in ("repo", "community") and out_dir:
             hierarchy = load_hierarchy(out_dir)
             context   = get_level_context(hierarchy, level)
+            context_tokens = len(context.split()) * 4 // 3 if context else 0
             if not context:
-                context = build_query_context(G, seed_nodes, k_hops=2)
+                context, context_tokens = build_query_context(
+                    G, seed_nodes, k_hops=2, max_tokens=token_budget
+                )
         else:
-            context = build_query_context(G, seed_nodes, k_hops=2)
+            context, context_tokens = build_query_context(
+                G, seed_nodes, k_hops=2, max_tokens=token_budget
+            )
     except Exception:
         # Pure fallback: BM25 matches
         matches = _keyword_search(G, question, top_k=top_k)
         context = _build_context(matches, G)
+        context_tokens = len(context.split()) * 4 // 3
 
     # ── Tier 5: LLM call ──────────────────────────────────────────────────────
     answer = _llm_answer(question, context, backend)
+    # Token count is a free byproduct of the packing pass — include on every call.
+    token_line = f"\n\n📊 context_tokens_used: {context_tokens}"
     if cache:
         cache.save(question, answer)
-    return answer
+    # Benchmark: only log the naive-file counterfactual when explicitly requested.
+    if benchmark_mode and out_dir:
+        _log_benchmark(question, G, [], context_tokens, out_dir)
+    return answer + token_line
 
 
 async def query_async(G: nx.MultiDiGraph, question: str, **kwargs: Any) -> str:
@@ -125,9 +154,54 @@ async def query_async(G: nx.MultiDiGraph, question: str, **kwargs: Any) -> str:
     return await loop.run_in_executor(None, lambda: query(G, question, **kwargs))
 
 
-# ──────────────────────────────────────────────────────────────────────────────
-# Keyword search (BM25-inspired, zero cost)
-# ──────────────────────────────────────────────────────────────────────────────
+def _log_benchmark(
+    question: str,
+    G: nx.MultiDiGraph,
+    matches: list,
+    graph_tokens: int,
+    out_dir: Path,
+) -> None:
+    """
+    Part D — Benchmark mode: compute raw-file tokens vs graph tokens and append
+    to cost_report.json so savings are independently checkable.
+
+    Raw token estimate: average 800 tokens per source file × files in graph.
+    This is conservative (many files are larger), so the actual saving is likely
+    higher.
+    """
+    import json
+    import time
+
+    # Count unique source files referenced in graph
+    unique_files = {
+        data.get("file") for _, data in G.nodes(data=True) if data.get("file")
+    }
+    # Estimate: ~800 tokens/file for average source file
+    raw_estimate = len(unique_files) * 800
+    saving_pct = max(0.0, (1 - graph_tokens / raw_estimate) * 100) if raw_estimate else 0.0
+
+    entry = {
+        "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        "question": question[:120],
+        "tokens_via_graph": graph_tokens,
+        "tokens_raw_files_estimate": raw_estimate,
+        "files_in_graph": len(unique_files),
+        "token_savings_pct": round(saving_pct, 1),
+        "note": "Raw estimate = 800 tokens × unique_files. Actual saving likely higher.",
+    }
+
+    cost_report = out_dir / "cost_report.json"
+    try:
+        data: dict = {}
+        if cost_report.exists():
+            data = json.loads(cost_report.read_text(encoding="utf-8"))
+        benchmarks = data.get("query_benchmarks", [])
+        benchmarks.append(entry)
+        data["query_benchmarks"] = benchmarks[-50:]  # keep last 50
+        cost_report.write_text(json.dumps(data, indent=2), encoding="utf-8")
+    except Exception:
+        pass  # benchmark logging is best-effort
+
 
 _STOPWORDS = {"the", "a", "an", "is", "are", "was", "were", "in", "on", "at",
               "to", "of", "and", "or", "how", "does", "what", "where", "which",

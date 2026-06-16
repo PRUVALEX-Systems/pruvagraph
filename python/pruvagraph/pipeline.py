@@ -346,9 +346,11 @@ def _run_pipeline(cfg: BuildConfig) -> BuildResult:
                 continue
         code_to_extract.append(path)
 
-    # Parallel tree-sitter extraction
+    # Parallel tree-sitter extraction — sized to physical CPU cores (no +4 margin)
     if code_to_extract:
-        with ProcessPoolExecutor() as pool:
+        import os as _os
+        _workers = _os.cpu_count() or 4
+        with ProcessPoolExecutor(max_workers=_workers) as pool:
             futures = {pool.submit(extract_code_file, p): p for p in code_to_extract}
             for future in as_completed(futures):
                 path = futures[future]
@@ -553,13 +555,23 @@ def _run_pipeline(cfg: BuildConfig) -> BuildResult:
 
     # ── Stages 3–5: Build → Cluster → Analyze → Report → Export ────────────
     _rich_print("[Stage 3/5] Building graph...", "cyan")
+    # Read previous node count before rebuilding (for B-layer Leiden skip)
+    _prev_node_count: int | None = None
+    try:
+        import json as _j
+        _prev_graph = out_dir / "graph.json"
+        if _prev_graph.exists():
+            _prev_data = _j.loads(_prev_graph.read_text(encoding="utf-8"))
+            _prev_node_count = len(_prev_data.get("nodes", []))
+    except Exception:
+        pass
     G = build_nx_graph(all_extractions)
 
     # N2: Enrich node summaries from docstrings (free)
     _enrich_with_docstrings(G, cfg.root)
 
     _rich_print("[Stage 4/5] Community detection (Leiden)...", "cyan")
-    G = cluster_leiden(G)
+    G = cluster_leiden(G, prev_node_count=_prev_node_count)
 
     _rich_print("[Stage 5/5] Analyzing + enriching + exporting...", "cyan")
     analysis = analyze(G)

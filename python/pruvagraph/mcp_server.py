@@ -703,13 +703,18 @@ Output: `pruvagraph-out/`
 # Entry point
 # ---------------------------------------------------------------------------
 
-if __name__ == "__main__":
-    import argparse
-    import asyncio
 
-    parser = argparse.ArgumentParser(description="PruvaGraph MCP Server")
-    parser.add_argument("--http", action="store_true", help="Run HTTP server instead of stdio")
-    parser.add_argument("--port", type=int, default=3000)
-    args = parser.parse_args()
+def run_server() -> None:
+    """
+    Public entry point for the `pruvagraph serve` CLI subcommand.
+
+    Used by: `claude mcp add --transport stdio pruvagraph -- pruvagraph serve`
+    """
+    import asyncio
+    asyncio.run(run_stdio_server())
+
+
+if __name__ == "__main__":
+    import asyncio
 
     asyncio.run(run_stdio_server())

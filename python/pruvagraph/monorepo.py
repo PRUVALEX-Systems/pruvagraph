@@ -23,6 +23,7 @@ Usage:
     if layout:
         result = build_monorepo_graph(Path("."), cfg)
 """
+
 from __future__ import annotations
 
 import json
