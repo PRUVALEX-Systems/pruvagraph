@@ -1,6 +1,6 @@
 <div align="center">
 
-<img width="619" height="299" alt="105bc64f-92a7-49fc-a9ac-067cfb535a1e" src="https://github.com/user-attachments/assets/9d72cd32-5db1-43b8-8459-d28c76c2f691" />
+<img width="2659" height="984" alt="PRUVALEX" src="https://github.com/user-attachments/assets/1926ba88-80be-4bb1-a58d-58189ea983d2" />
 
 
 # PruvaGraph
