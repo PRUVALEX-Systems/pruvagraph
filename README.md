@@ -57,8 +57,11 @@ pruvagraph watch .               # auto-rebuild on every save
 
 ```bash
 pruvagraph . install                # all IDEs at once
-pruvagraph . install --claude-code  # writes ~/.claude/mcp_config.json + CLAUDE.md
+pruvagraph . install --claude-code  # runs: claude mcp add pruvagraph (or writes .mcp.json fallback)
 ```
+
+> [!NOTE]
+> The installer detects whether the `claude` CLI is on your PATH and uses `claude mcp add --transport stdio pruvagraph --scope user` automatically. If not found, it falls back to writing `.mcp.json` in your project root — the documented, version-controllable MCP schema. Approve the server when Claude Code prompts you on first open.
 
 | IDE | Install | Status |
 |---|---|---|
@@ -84,6 +87,8 @@ pruvagraph . install --claude-code  # writes ~/.claude/mcp_config.json + CLAUDE.
 | `analyze_impact` | "What breaks if I change AuthMiddleware?" |
 | `list_packages` | "What packages exist in this monorepo?" |
 
+Every query response includes a `context_tokens_used` field — the exact size of the subgraph context packed and sent. Zero extra computation; it's a free byproduct of the token-budget packing pass.
+
 ---
 
 ## Architecture — 31 Layers
@@ -92,17 +97,24 @@ pruvagraph . install --claude-code  # writes ~/.claude/mcp_config.json + CLAUDE.
 
 - **Build-time (21 layers)** — tree-sitter AST, MinHash dedup, batch packing, LLM cascade (Ollama → Gemini → Claude), token compression, free parsers for docs/config/schema files, git intelligence, monorepo auto-detection.
 - **Graph enrichment (5 layers)** — Leiden community clustering, type harvesting, 4-level hierarchy summaries, offline embeddings.
-- **Query-time (5 layers)** — cache → deterministic router → semantic subgraph → hierarchy scoping → LLM only as a last resort.
+- **Query-time (5 layers)** — cache → deterministic router → relevance-ranked semantic subgraph → hierarchy scoping → LLM only as a last resort.
 
 ```
-Question ──► Query Cache        exact/fuzzy repeats        → free
-         ──► Deterministic Router  8 algorithmic patterns  → free
-         ──► Embedding + Subgraph  2-hop BFS                → free
-         ──► Hierarchy Router      right abstraction level  → free
-         ──► LLM                   micro-context only       → minimal cost
+Question ──► Query Cache           exact/fuzzy repeats        → free
+         ──► Deterministic Router  8 algorithmic patterns     → free
+         ──► Ranked Subgraph       relevance-scored 2-hop BFS → free
+         ──► Hierarchy Router      right abstraction level    → free
+         ──► LLM                   micro-context only         → minimal cost
 ```
 
 8 query patterns answered with zero LLM calls: callers, dependencies, module list, god nodes, summaries, statistics, dead code, shortest path.
+
+**v1.4.0 — Precision Engine improvements:**
+- Parse pool sized to physical CPU cores (no over-provisioning)
+- Incremental Leiden clustering — skips full re-cluster when <5% of nodes changed
+- Relevance-ranked subgraph packing: `(embedding_sim × 0.4) + (degree_centrality × 0.4) + (git_recency × 0.2)`
+- Fixed Claude Code MCP installer — now uses official `claude mcp add` CLI
+- Redesigned `graph.html` — "oscilloscope" precision aesthetic with click-to-isolate node highlighting
 
 ---
 
@@ -124,7 +136,7 @@ pruvagraph .  --cascade   --dry-run   --budget 2.00   --update   --force   --no-
 # Query / reports
 pruvagraph query "..."
 pruvagraph cost-report
-pruvagraph benchmark
+pruvagraph benchmark              # logs naive-file vs graph token comparison to cost_report.json
 
 # Export
 pruvagraph export --format html|cypher|obsidian|graphml
@@ -132,7 +144,7 @@ pruvagraph export --format html|cypher|obsidian|graphml
 # IDEs & automation
 pruvagraph . install [--claude-code|--cursor|--vscode]
 pruvagraph watch .
-pruvagraph hook install   # git commit hook
+pruvagraph hook install           # git commit hook
 ```
 
 ---
@@ -167,6 +179,7 @@ All features degrade gracefully without the optional package installed.
 - **CLI syntax:** root path required before subcommands (see Quick Start).
 - **`--update` mode** requires a git repository; falls back to a full cache-checked scan otherwise.
 - **Prompt caching** is Claude-only with a 5-minute TTL.
+- **`.mcp.json` fallback:** project-scoped MCP servers require manual approval the first time Claude Code opens the folder. You'll see a prompt — approve it once.
 
 ---
 
