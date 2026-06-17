@@ -232,6 +232,11 @@ def _is_repo_unchanged(cfg: "BuildConfig") -> bool:
         return False  # any error → conservative, run pipeline
 
 
+def _worker_init() -> None:
+    """Pre-warm imports once per worker process to amortise spawn overhead."""
+    from pruvagraph import extract  # noqa: F401
+
+
 def _run_pipeline(cfg: BuildConfig) -> BuildResult:
     from pruvagraph.analyze import analyze
     from pruvagraph.build import build_nx_graph
@@ -376,10 +381,6 @@ def _run_pipeline(cfg: BuildConfig) -> BuildResult:
                     )
         except Exception:
             pass  # fallback: full extraction
-
-    def _worker_init() -> None:
-        """Pre-warm imports once per worker process to amortise spawn overhead."""
-        from pruvagraph import extract  # noqa: F401
 
     # Parallel extraction — sized to physical CPU cores (no +4 margin)
     if code_to_extract:
