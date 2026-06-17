@@ -615,7 +615,7 @@ def _write_obsidian(G: nx.MultiDiGraph, out_folder: Path) -> None:
         cards.append({{
             "id":     node_id[:50],
             "type":   "text",
-            "text":   f"**{{data.get('label', node_id)}}** ({{data.get('type','?')}})\\n\\n{{data.get('summary', '')}}",
+            "text":   "**{data.get('label', node_id)}** ({data.get('type','?')})\\n\\n{data.get('summary', '')}",
             "x": px, "y": py, "width": 250, "height": 120,
         }})
 
@@ -625,7 +625,7 @@ def _write_obsidian(G: nx.MultiDiGraph, out_folder: Path) -> None:
         if sig not in seen:
             seen.add(sig)
             edges_out.append({{
-                "id": f"{{u[:25]}}-{{v[:25]}}",
+                "id": "{u[:25]}-{v[:25]}",
                 "fromNode": u[:50], "fromSide": "right",
                 "toNode": v[:50], "toSide": "left",
                 "label": data.get("relation", ""),

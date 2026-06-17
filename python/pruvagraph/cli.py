@@ -20,6 +20,7 @@ from __future__ import annotations
 import json
 import sys
 from pathlib import Path
+from typing import Any
 
 import click
 
@@ -502,6 +503,7 @@ def impact_cmd(symbol: str, root: str, depth: int, fmt: str) -> None:
         pruvagraph impact build_graph --format json
     """
     import json as _json
+
     import networkx as nx
 
     out_dir   = Path(root) / "pruvagraph-out"

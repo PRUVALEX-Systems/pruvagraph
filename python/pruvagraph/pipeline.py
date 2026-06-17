@@ -28,11 +28,11 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from pruvagraph import global_cache  # noqa: F401 — A5: wired into pipeline
 from pruvagraph.batch import BatchPlan, pack_batches
 from pruvagraph.cache import GraphCache
 from pruvagraph.cost import CostReport, CostTracker
 from pruvagraph.dedup import deduplicate, project_extraction
-from pruvagraph import global_cache  # noqa: F401 — A5: wired into pipeline
 
 _OUT_DIR = "pruvagraph-out"
 

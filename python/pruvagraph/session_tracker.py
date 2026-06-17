@@ -37,7 +37,6 @@ from dataclasses import dataclass, field
 from time import monotonic
 from typing import Any
 
-
 # ──────────────────────────────────────────────────────────────────────────────
 # Session state (module-level singleton — lives for the MCP server process)
 # ──────────────────────────────────────────────────────────────────────────────

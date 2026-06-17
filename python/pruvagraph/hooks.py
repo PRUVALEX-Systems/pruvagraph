@@ -59,7 +59,6 @@ import json
 import sys
 from pathlib import Path
 
-
 # ──────────────────────────────────────────────────────────────────────────────
 # Hook entry point  (called as:  python -m pruvagraph.hooks)
 # ──────────────────────────────────────────────────────────────────────────────

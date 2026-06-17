@@ -39,7 +39,6 @@ import subprocess
 import sys
 from pathlib import Path
 
-
 # ──────────────────────────────────────────────────────────────────────────────
 # Public API
 # ──────────────────────────────────────────────────────────────────────────────
@@ -258,7 +257,7 @@ def _validate_mcp_json(path: Path) -> None:
             errors.append("  • 'env' must be a dict")
         if errors:
             print(
-                f"  ⚠ .mcp.json schema validation warnings:\n" + "\n".join(errors),
+                "  ⚠ .mcp.json schema validation warnings:\n" + "\n".join(errors),
                 file=sys.stderr,
             )
         else:
