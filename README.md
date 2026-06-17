@@ -15,7 +15,7 @@ Built for developers who love Claude Code, but not the bill.
 [![PyPI](https://img.shields.io/badge/PyPI-pruvagraph-blue?style=flat-square&logo=pypi)](https://pypi.org/project/pruvagraph)
 [![License: MIT](https://img.shields.io/badge/License-MIT-00E57A?style=flat-square)](./LICENSE)
 [![CI](https://img.shields.io/github/actions/workflow/status/PRUVALEX-Systems/pruvagraph/ci.yml?style=flat-square&label=CI)](https://github.com/PRUVALEX-Systems/pruvagraph/actions)
-[![Version](https://img.shields.io/badge/Version-1.4.0-00E57A?style=flat-square)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/Version-1.5.0-00E57A?style=flat-square)](./CHANGELOG.md)
 
 </div>
 
@@ -111,7 +111,12 @@ Question ──► Query Cache           exact/fuzzy repeats        → free
 
 8 query patterns answered with zero LLM calls: callers, dependencies, module list, god nodes, summaries, statistics, dead code, shortest path.
 
-**v1.4.0 — Precision Engine improvements:**
+**v1.5.0 — Impact Intelligence:**
+- **Graph Diff Engine (D1):** Computes architectural deltas across commits instantly.
+- **Impact Analyzer (D2):** Forward & reverse BFS traversal with Risk Scoring for predicting breaking changes.
+- **Monorepo Router (M1):** Auto-detects 10+ workspace specs (pnpm, nx, lerna, npm, cargo) and generates cross-package edges.
+
+**v1.4.0 — Precision Engine:**
 - Parse pool sized to physical CPU cores (no over-provisioning)
 - Incremental Leiden clustering — skips full re-cluster when <5% of nodes changed
 - Relevance-ranked subgraph packing: `(embedding_sim × 0.4) + (degree_centrality × 0.4) + (git_recency × 0.2)`
