@@ -217,93 +217,197 @@ class PruvaGraphDashboard {
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>PruvaGraph Analytics</title>
 <style>
+/* ═══════════════════════════════════════════════
+   PRUVALEX PruvaGraph Analytics Dashboard
+   Premium dark UI — Brand Red design system
+   ═══════════════════════════════════════════════ */
 :root{
-  --bg:var(--vscode-editor-background, #0d1117); --surface:var(--vscode-sideBar-background, #161b22);
-  --bdr:var(--vscode-widget-border, #30363d); --txt:var(--vscode-foreground, #e6edf3);
-  --mut:var(--vscode-descriptionForeground, #8b949e);
-  --tel:#4ecdc4; --amb:#f5a623; --red:#ff4d4d; --grn:#3fb950; --blu:#58a6ff;
-  --acc:var(--vscode-button-background, #7c6efa); --fnt:var(--vscode-font-family, system-ui, sans-serif);
-  --mono:var(--vscode-editor-font-family, monospace);
+  --bg:      var(--vscode-editor-background, #0D1117);
+  --surface: var(--vscode-sideBar-background, #161B22);
+  --raised:  #1C2128;
+  --bdr:     var(--vscode-widget-border, #30363D);
+  --bdr-h:   #484F58;
+  --txt:     var(--vscode-foreground, #E6EDF3);
+  --mut:     var(--vscode-descriptionForeground, #7D8590);
+  --brand:   #E53E3E;
+  --brand-d: #C53030;
+  --brand-l: #FC8181;
+  --brand-g: rgba(229,62,62,0.12);
+  --grn:     #3FB950;  --grn-g: rgba(63,185,80,0.12);
+  --amb:     #D29922;  --amb-g: rgba(210,153,34,0.12);
+  --red:     #F85149;  --red-g: rgba(248,81,73,0.12);
+  --blu:     #58A6FF;  --blu-g: rgba(88,166,255,0.12);
+  --cyn:     #39C5CF;
+  --fnt:     var(--vscode-font-family, system-ui, -apple-system, sans-serif);
+  --mono:    var(--vscode-editor-font-family, 'Cascadia Code', monospace);
 }
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes budgetArc{from{stroke-dasharray:0 339.29}}
 *{box-sizing:border-box;margin:0;padding:0;}
-body{background:var(--bg);color:var(--txt);font-family:var(--fnt);font-size:13px;padding:0;overflow-x:hidden;}
-.tab-bar{display:flex;background:var(--surface);border-bottom:1px solid var(--bdr);position:sticky;top:0;z-index:10;}
-.tab{flex:1;text-align:center;padding:10px 6px;cursor:pointer;color:var(--mut);font-size:11px;font-weight:600;
-  border-bottom:2px solid transparent;transition:all 0.2s;letter-spacing:0.3px;}
+body{background:var(--bg);color:var(--txt);font-family:var(--fnt);font-size:13px;padding:0;overflow-x:hidden;-webkit-font-smoothing:antialiased;}
+
+/* Tab Bar */
+.tab-bar{display:flex;background:var(--surface);border-bottom:1px solid var(--bdr);position:sticky;top:0;z-index:10;backdrop-filter:blur(8px);}
+.tab{flex:1;text-align:center;padding:11px 6px;cursor:pointer;color:var(--mut);font-size:11px;font-weight:600;
+  border-bottom:2px solid transparent;transition:color 0.2s,border-color 0.2s;letter-spacing:0.2px;user-select:none;}
 .tab:hover{color:var(--txt);}
-.tab.active{color:var(--acc);border-bottom-color:var(--acc);}
-.panel{display:none;padding:16px;}
+.tab.active{color:var(--brand);border-bottom-color:var(--brand);}
+
+/* Panels */
+.panel{display:none;padding:16px;animation:fadeIn 0.2s ease;}
 .panel.active{display:block;}
+
+/* KPI Grid */
 .kpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
-.kpi{background:var(--surface);border:1px solid var(--bdr);border-radius:10px;padding:14px;transition:border-color 0.2s;}
-.kpi:hover{border-color:var(--acc);}
-.kpi-label{font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:6px;font-weight:600;}
-.kpi-value{font-size:22px;font-weight:700;font-family:var(--mono);}
-.kpi-value.g{color:var(--grn);} .kpi-value.t{color:var(--tel);} .kpi-value.b{color:var(--blu);}
-.card{background:var(--surface);border:1px solid var(--bdr);border-radius:10px;padding:14px;margin-bottom:12px;}
-.card-title{font-size:11px;font-weight:700;text-transform:uppercase;color:var(--mut);letter-spacing:0.6px;margin-bottom:12px;}
-.bar-chart{display:flex;flex-direction:column;gap:6px;}
+.kpi{
+  background:linear-gradient(135deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01));
+  border:1px solid rgba(255,255,255,0.07);
+  border-radius:12px;padding:16px 14px;
+  transition:border-color 0.2s,transform 0.2s,box-shadow 0.2s;
+  cursor:default;
+}
+.kpi:hover{border-color:rgba(229,62,62,0.3);transform:translateY(-2px);box-shadow:0 4px 20px rgba(0,0,0,0.35);}
+.kpi-label{font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:0.7px;margin-bottom:10px;font-weight:600;}
+.kpi-value{font-size:24px;font-weight:700;font-family:var(--mono);letter-spacing:-0.5px;}
+.kpi-value.g{
+  background:linear-gradient(135deg,var(--grn),#56D364);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.kpi-value.t{
+  background:linear-gradient(135deg,var(--cyn),#7DCFDA);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.kpi-value.b{
+  background:linear-gradient(135deg,var(--blu),#79B8FF);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+
+/* Cards */
+.card{background:var(--surface);border:1px solid var(--bdr);border-radius:12px;padding:16px;margin-bottom:12px;}
+.card-title{
+  font-size:10px;font-weight:700;text-transform:uppercase;
+  color:var(--mut);letter-spacing:0.7px;margin-bottom:14px;
+  display:flex;align-items:center;gap:7px;
+}
+.card-title::before{
+  content:'';display:inline-block;width:3px;height:12px;
+  background:linear-gradient(180deg,var(--brand),var(--brand-d));
+  border-radius:2px;flex-shrink:0;
+}
+
+/* Bar Chart */
+.bar-chart{display:flex;flex-direction:column;gap:8px;}
 .bar-row{display:flex;align-items:center;gap:8px;}
-.bar-label{font-size:11px;color:var(--mut);width:160px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.bar-track{flex:1;display:flex;flex-direction:column;gap:3px;}
-.bar-seg{display:flex;align-items:center;gap:4px;height:10px;}
-.bar-fill{height:10px;border-radius:4px;transition:width 0.4s ease;}
-.bar-fill.g{background:var(--grn);} .bar-fill.r{background:var(--red);}
-.bar-tok{font-size:10px;color:var(--mut);font-family:var(--mono);width:40px;flex-shrink:0;}
-.bar-pct{font-size:11px;font-weight:700;color:var(--grn);width:36px;text-align:right;flex-shrink:0;font-family:var(--mono);}
-.donut-wrap{display:flex;align-items:center;gap:20px;}
-.legend{display:flex;flex-direction:column;gap:8px;}
-.legend-row{display:flex;align-items:flex-start;gap:8px;font-size:12px;}
+.bar-label{font-size:11px;color:var(--mut);width:130px;min-width:0;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.bar-track{flex:1;display:flex;flex-direction:column;gap:3px;min-width:0;}
+.bar-seg{display:flex;align-items:center;gap:5px;height:10px;}
+.bar-fill{height:10px;border-radius:5px;transition:width 0.5s cubic-bezier(0.4,0,0.2,1);min-width:2px;}
+.bar-fill.g{background:linear-gradient(90deg,var(--grn),#56D364);}
+.bar-fill.r{background:linear-gradient(90deg,var(--brand-d),var(--brand));}
+.bar-tok{font-size:10px;color:var(--mut);font-family:var(--mono);width:42px;flex-shrink:0;text-align:right;}
+.bar-pct{
+  font-size:10px;font-weight:700;
+  background:var(--grn-g);color:var(--grn);
+  border:1px solid rgba(63,185,80,0.25);
+  padding:1px 5px;border-radius:3px;
+  width:38px;text-align:center;flex-shrink:0;
+  font-family:var(--mono);
+}
+
+/* Donut / Tier Map */
+.donut-wrap{display:flex;align-items:center;gap:24px;flex-wrap:wrap;}
+.legend{display:flex;flex-direction:column;gap:9px;}
+.legend-row{display:flex;align-items:flex-start;gap:9px;font-size:12px;}
 .dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:2px;}
-.timeline{display:flex;flex-direction:column;gap:12px;}
-.timeline-task{border-left:2px solid var(--acc);padding-left:12px;}
-.t-task-id{font-size:11px;font-weight:700;color:var(--acc);margin-bottom:6px;}
+
+/* Timeline */
+.timeline{display:flex;flex-direction:column;gap:14px;}
+.timeline-task{
+  border-left:2px solid var(--brand);
+  padding-left:14px;
+  position:relative;
+}
+.timeline-task::before{
+  content:'';position:absolute;left:-5px;top:0;
+  width:8px;height:8px;border-radius:50%;
+  background:var(--brand);border:2px solid var(--bg);
+}
+.t-task-id{font-size:11px;font-weight:700;color:var(--brand-l);margin-bottom:8px;}
 .t-track{display:flex;flex-direction:column;gap:6px;}
-.t-item{background:var(--bg);border:1px solid var(--bdr);border-radius:6px;padding:8px 10px;}
+.t-item{
+  background:var(--raised);border:1px solid var(--bdr);
+  border-radius:8px;padding:9px 12px;
+  transition:border-color 0.2s;
+}
+.t-item:hover{border-color:var(--bdr-h);}
 .t-item.done{border-left:3px solid var(--grn);}
 .t-item.pending{border-left:3px solid var(--amb);}
 .t-item.failed{border-left:3px solid var(--red);}
-.t-desc{font-size:12px;margin-bottom:3px;}
+.t-desc{font-size:12px;margin-bottom:4px;color:var(--txt);}
 .t-meta{font-size:10px;color:var(--mut);font-family:var(--mono);}
-.sbadge{display:inline-block;padding:1px 5px;border-radius:3px;font-size:9px;font-weight:700;margin-left:4px;}
-.sbadge.done{background:rgba(63,185,80,0.15);color:var(--grn);}
-.sbadge.pending{background:rgba(245,166,35,0.15);color:var(--amb);}
-.sbadge.failed{background:rgba(255,77,77,0.15);color:var(--red);}
-.sha{font-family:var(--mono);font-size:10px;background:#21262d;padding:1px 4px;border-radius:3px;}
-.budget-wrap{display:flex;align-items:center;gap:24px;}
-.budget-details{display:flex;flex-direction:column;gap:8px;flex:1;}
-.b-row{display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px solid var(--bdr);}
+.sbadge{display:inline-block;padding:1px 6px;border-radius:4px;font-size:9px;font-weight:700;margin-left:5px;}
+.sbadge.done{background:var(--grn-g);color:var(--grn);border:1px solid rgba(63,185,80,0.25);}
+.sbadge.pending{background:var(--amb-g);color:var(--amb);border:1px solid rgba(210,153,34,0.25);}
+.sbadge.failed{background:var(--red-g);color:var(--red);border:1px solid rgba(248,81,73,0.25);}
+.sha{font-family:var(--mono);font-size:10px;background:rgba(255,255,255,0.06);padding:1px 5px;border-radius:3px;}
+
+/* Budget Meter */
+.budget-wrap{display:flex;align-items:center;gap:28px;flex-wrap:wrap;}
+.budget-details{display:flex;flex-direction:column;gap:6px;flex:1;min-width:140px;}
+.b-row{display:flex;justify-content:space-between;align-items:center;font-size:12px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.04);}
 .b-row:last-child{border:none;}
 .b-row .val{font-weight:700;font-family:var(--mono);}
-.bstatus{font-size:10px;font-weight:700;text-align:center;margin-top:4px;text-transform:uppercase;letter-spacing:0.5px;}
-.bstatus.OK{color:var(--tel);} .bstatus.WARNING{color:var(--amb);} .bstatus.EXCEEDED{color:var(--red);} .bstatus.NO_BUDGET{color:var(--mut);}
-.btn{display:inline-flex;align-items:center;gap:6px;background:var(--acc);color:#fff;
-  border:none;border-radius:6px;padding:7px 14px;font-size:12px;font-weight:600;cursor:pointer;transition:opacity .15s;}
-.btn:hover{opacity:.85;}
-.btn.ghost{background:transparent;color:var(--mut);border:1px solid var(--bdr);}
-.btn.ghost:hover{color:var(--txt);border-color:var(--txt);}
-.btn-row{display:flex;gap:8px;margin-bottom:16px;}
-.empty{color:var(--mut);font-size:12px;padding:20px;text-align:center;
-  border:1px dashed var(--bdr);border-radius:8px;}
-code{font-family:var(--mono);background:#21262d;padding:1px 5px;border-radius:3px;font-size:11px;}
+.bstatus{font-size:10px;font-weight:700;text-align:center;margin-top:5px;text-transform:uppercase;letter-spacing:0.6px;}
+.bstatus.OK{color:var(--cyn);} .bstatus.WARNING{color:var(--amb);} .bstatus.EXCEEDED{color:var(--red);} .bstatus.NO_BUDGET{color:var(--mut);}
+
+/* Buttons */
+.btn{
+  display:inline-flex;align-items:center;gap:7px;
+  background:linear-gradient(135deg,var(--brand),var(--brand-d));
+  color:#fff;border:none;border-radius:8px;
+  padding:8px 16px;font-size:12px;font-weight:600;
+  cursor:pointer;transition:opacity 0.15s,transform 0.15s,box-shadow 0.15s;
+  font-family:var(--fnt);
+}
+.btn:hover{opacity:0.9;transform:translateY(-1px);box-shadow:0 3px 12px rgba(229,62,62,0.3);}
+.btn:active{transform:translateY(0);box-shadow:none;}
+.btn.ghost{
+  background:transparent;color:var(--mut);
+  border:1px solid var(--bdr);box-shadow:none;
+}
+.btn.ghost:hover{color:var(--txt);border-color:var(--bdr-h);box-shadow:none;transform:translateY(-1px);}
+.btn-row{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
+
+/* Empty state */
+.empty{
+  color:var(--mut);font-size:12px;padding:28px 20px;
+  text-align:center;border:1px dashed rgba(229,62,62,0.2);
+  border-radius:10px;background:var(--brand-g);line-height:1.7;
+}
+
+/* Misc */
+code{font-family:var(--mono);background:rgba(255,255,255,0.06);padding:1px 5px;border-radius:3px;font-size:11px;}
 table{width:100%;border-collapse:collapse;font-size:12px;}
-th{text-align:left;padding:6px 8px;color:var(--mut);border-bottom:1px solid var(--bdr);font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:0.4px;}
-td{padding:6px 8px;border-bottom:1px solid var(--bdr);}
+th{text-align:left;padding:8px 10px;color:var(--mut);border-bottom:1px solid var(--bdr);font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:0.5px;}
+td{padding:8px 10px;border-bottom:1px solid rgba(255,255,255,0.04);}
 tr:last-child td{border:none;}
+td:first-child{font-weight:600;}
+.truth-card{font-size:11px;color:var(--mut);line-height:1.8;}
+.truth-card strong{color:var(--txt);}
 </style></head><body>
 
 <div class="tab-bar">
-  <div class="tab ${this._initialTab === 'dashboard' ? 'active' : ''}"  id="tab-dashboard" onclick="sw('dashboard')">&#128200; Cost Dashboard</div>
-  <div class="tab ${this._initialTab === 'tiermap' ? 'active' : ''}"   id="tab-tiermap"   onclick="sw('tiermap')">&#9685; Tier Map</div>
-  <div class="tab ${this._initialTab === 'timeline' ? 'active' : ''}"  id="tab-timeline"  onclick="sw('timeline')">&#9201; Agent Timeline</div>
-  <div class="tab ${this._initialTab === 'budget' ? 'active' : ''}"    id="tab-budget"    onclick="sw('budget')">&#128180; Budget Meter</div>
+  <div class="tab ${this._initialTab === 'dashboard' ? 'active' : ''}"  id="tab-dashboard" onclick="sw('dashboard')">Cost Dashboard</div>
+  <div class="tab ${this._initialTab === 'tiermap' ? 'active' : ''}"   id="tab-tiermap"   onclick="sw('tiermap')">Tier Map</div>
+  <div class="tab ${this._initialTab === 'timeline' ? 'active' : ''}"  id="tab-timeline"  onclick="sw('timeline')">Timeline</div>
+  <div class="tab ${this._initialTab === 'budget' ? 'active' : ''}"    id="tab-budget"    onclick="sw('budget')">Budget</div>
 </div>
 
 <!-- PANEL 1 — Cost Savings Dashboard -->
 <div id="dashboard" class="panel ${this._initialTab === 'dashboard' ? 'active' : ''}">
   <div class="btn-row">
     <button class="btn" onclick="post('refresh')">&#8635; Refresh</button>
-    <button class="btn ghost" onclick="post('openViz')">&#128200; Open Graph</button>
+    <button class="btn ghost" onclick="post('openViz')">Open Graph Viz</button>
   </div>
   <div class="kpi-grid">
     <div class="kpi"><div class="kpi-label">Avg Token Savings</div>
@@ -346,9 +450,9 @@ tr:last-child td{border:none;}
     <div class="card-title">Query Tier Distribution</div>
     ${qCount > 0 ? `<div class="donut-wrap">
       <svg width="140" height="140" viewBox="0 0 140 140">
-        ${tierArcs.filter(a => a.path).map(a => `<path d="${a.path}" fill="${a.color}" opacity="0.9"/>`).join('')}
-        <circle cx="${cx}" cy="${cy}" r="34" fill="var(--bg)"/>
-        <text x="${cx}" y="${cy - 5}" text-anchor="middle" font-size="18"
+        ${tierArcs.filter(a => a.path).map(a => `<path d="${a.path}" fill="${a.color}" opacity="0.88"/>`).join('')}
+        <circle cx="${cx}" cy="${cy}" r="36" fill="var(--bg)"/>
+        <text x="${cx}" y="${cy - 5}" text-anchor="middle" font-size="20"
               font-family="var(--mono)" fill="var(--txt)" font-weight="700">${tierTotal}</text>
         <text x="${cx}" y="${cy + 14}" text-anchor="middle" font-size="9"
               font-family="var(--fnt)" fill="var(--mut)">queries</text>
@@ -357,20 +461,20 @@ tr:last-child td{border:none;}
         <div class="legend-row">
           <div class="dot" style="background:${t.color}"></div>
           <div>
-            <div>${t.label} <strong style="font-family:var(--mono)">${tierCounts[t.key]}</strong> (${(tierCounts[t.key]/tierTotal*100).toFixed(1)}%)</div>
-            <div style="font-size:11px;color:var(--mut);">${t.desc}</div>
+            <div style="font-size:12px;">${t.label} <strong style="font-family:var(--mono)">${tierCounts[t.key]}</strong> <span style="color:var(--mut);font-size:11px;">(${(tierCounts[t.key]/tierTotal*100).toFixed(1)}%)</span></div>
+            <div style="font-size:10px;color:var(--mut);margin-top:1px;">${t.desc}</div>
           </div>
         </div>`).join('')}</div>
-    </div>` : '<div class="empty">No benchmark data. Run benchmark first.</div>'}
+    </div>` : '<div class="empty">No benchmark data.<br>Run: <code>pruvagraph benchmark-suite</code></div>'}
   </div>
   <div class="card">
     <div class="card-title">Tier Cost Reference</div>
     <table>
       <tr><th>Tier</th><th>Cost/Query</th><th>Mechanism</th></tr>
-      <tr><td style="color:#3fb950;">0 — Cache</td><td>$0.000</td><td style="color:var(--mut);">Exact query cache hit</td></tr>
-      <tr><td style="color:#4ecdc4;">1 — Deterministic</td><td>$0.000</td><td style="color:var(--mut);">Graph traversal, no LLM</td></tr>
-      <tr><td style="color:#58a6ff;">2 — Embedding</td><td>~$0.00001</td><td style="color:var(--mut);">Local BAAI embed, no API</td></tr>
-      <tr><td style="color:#f5a623;">3 — LLM Subgraph</td><td>~$0.0001</td><td style="color:var(--mut);">LLM on 2-hop graph (~450 tokens avg)</td></tr>
+      <tr><td style="color:#3fb950;">0 — Cache</td><td style="font-family:var(--mono);">$0.000</td><td style="color:var(--mut);">Exact query cache hit</td></tr>
+      <tr><td style="color:#39C5CF;">1 — Deterministic</td><td style="font-family:var(--mono);">$0.000</td><td style="color:var(--mut);">Graph traversal, no LLM</td></tr>
+      <tr><td style="color:#58a6ff;">2 — Embedding</td><td style="font-family:var(--mono);">~$0.00001</td><td style="color:var(--mut);">Local BAAI embed, no API</td></tr>
+      <tr><td style="color:#D29922;">3 — LLM Subgraph</td><td style="font-family:var(--mono);">~$0.0001</td><td style="color:var(--mut);">LLM on 2-hop graph (~450 tokens avg)</td></tr>
     </table>
   </div>
 </div>
@@ -382,52 +486,58 @@ tr:last-child td{border:none;}
     <div class="card-title">TaskWeaver — Agent Checkpoints</div>
     ${taskIds.length > 0 ? `<div class="timeline">${taskIds.map(tid => `
       <div class="timeline-task">
-        <div class="t-task-id">&#128204; Task: ${tid}</div>
+        <div class="t-task-id">Task: ${_esc(tid)}</div>
         <div class="t-track">${taskMap[tid].map((/** @type {any} */ cp, /** @type {number} */ i) => `
           <div class="t-item ${cp.status}">
-            <div class="t-desc">${i+1}. ${cp.description}
+            <div class="t-desc">${i+1}. ${_esc(cp.description)}
               &nbsp;<span class="sbadge ${cp.status}">${cp.status}</span></div>
             <div class="t-meta">
-              ${cp.git_sha ? `<span class="sha">${cp.git_sha.slice(0,8)}</span>&nbsp;` : ''}
-              ${(cp.created_at||'').replace('T',' ').replace('Z','')}</div>
+              ${cp.git_sha ? `<span class="sha">${cp.git_sha.slice(0,8)}</span>&nbsp;&nbsp;` : ''}
+              ${_esc((cp.created_at||'').replace('T',' ').replace('Z',''))}</div>
           </div>`).join('')}
         </div>
       </div>`).join('')}</div>`
-    : '<div class="empty">No checkpoints yet.<br>Use the MCP tool <code>create_checkpoint</code> or CLI:<br><code>pruvagraph checkpoint --task my-task --description "..."</code></div>'}
+    : '<div class="empty">No checkpoints yet.<br><br>Use the MCP tool <code>create_checkpoint</code> or CLI:<br><code>pruvagraph checkpoint --task my-task --description "..."</code></div>'}
   </div>
 </div>
 
 <!-- PANEL 4 — Token Budget Meter -->
 <div id="budget" class="panel ${this._initialTab === 'budget' ? 'active' : ''}">
   <div class="btn-row">
-    <button class="btn" onclick="post('setBudget')">&#43; Set Budget</button>
+    <button class="btn" onclick="post('setBudget')">+ Set Budget</button>
     <button class="btn ghost" onclick="post('refresh')">&#8635; Refresh</button>
   </div>
   <div class="card">
     <div class="card-title">Session Token Budget</div>
     <div class="budget-wrap">
-      <div>
-        <svg width="120" height="120" viewBox="0 0 120 120">
-          <circle cx="60" cy="60" r="54" fill="none" stroke="#21262d" stroke-width="12"/>
-          <circle cx="60" cy="60" r="54" fill="none" stroke="${budgetColor}" stroke-width="12"
+      <div style="flex-shrink:0;">
+        <svg width="128" height="128" viewBox="0 0 128 128">
+          <!-- Track -->
+          <circle cx="64" cy="64" r="54" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="13"/>
+          <!-- Arc -->
+          <circle cx="64" cy="64" r="54" fill="none" stroke="${budgetColor}" stroke-width="13"
             stroke-dasharray="${budgetArcLen} 339.29" stroke-linecap="round"
-            transform="rotate(-90 60 60)" style="transition:stroke-dasharray .5s;"/>
-          <text x="60" y="56" text-anchor="middle" font-family="var(--mono)"
-            font-size="18" font-weight="700" fill="${budgetColor}">${budgetPct.toFixed(0)}%</text>
-          <text x="60" y="72" text-anchor="middle" font-family="var(--fnt)"
-            font-size="9" fill="var(--mut)">used</text>
+            transform="rotate(-90 64 64)"
+            style="transition:stroke-dasharray 0.7s cubic-bezier(0.4,0,0.2,1);filter:drop-shadow(0 0 6px ${budgetColor});"/>
+          <!-- Center text -->
+          <text x="64" y="59" text-anchor="middle" font-family="var(--mono)"
+            font-size="22" font-weight="700" fill="${budgetColor}">${budgetPct.toFixed(0)}%</text>
+          <text x="64" y="76" text-anchor="middle" font-family="var(--fnt)"
+            font-size="10" fill="var(--mut)">token usage</text>
         </svg>
-        <div class="bstatus ${budget.status}">${budget.status}</div>
+        <div class="bstatus ${budget.status}" style="margin-top:6px;">${budget.status === 'NO_BUDGET' ? 'Not Set' : budget.status}</div>
       </div>
       <div class="budget-details">
         ${budget.session_set ? `
-        <div class="b-row"><span>Budget Cap</span><span class="val">${(budget.cap||0).toLocaleString()} tokens</span></div>
+        <div class="b-row"><span>Budget Cap</span><span class="val">${(budget.cap||0).toLocaleString()} tok</span></div>
         <div class="b-row"><span>Spent</span><span class="val">${(budget.spent||0).toLocaleString()} (${budgetPct.toFixed(1)}%)</span></div>
-        <div class="b-row"><span>Remaining</span><span class="val" style="color:${budgetColor}">${(budget.remaining||0).toLocaleString()} tokens</span></div>
+        <div class="b-row"><span>Remaining</span><span class="val" style="color:${budgetColor}">${(budget.remaining||0).toLocaleString()}</span></div>
         <div class="b-row"><span>Status</span><span class="val" style="color:${budgetColor}">${budget.status}</span></div>
-        ` : `<div style="color:var(--mut);font-size:12px;padding:8px 0;">No budget set for this session.<br><br>
-        Click <strong>+ Set Budget</strong> to configure a token cap.<br>
-        Budget tracks automatically via <code>_dispatch()</code> on every MCP tool call.</div>`}
+        ` : `<div style="color:var(--mut);font-size:12px;line-height:1.7;">
+          No budget configured.<br><br>
+          Click <strong style="color:var(--txt);">+ Set Budget</strong> to set a token cap.
+          Auto-tracked via <code>_dispatch()</code> on every MCP call.
+        </div>`}
       </div>
     </div>
   </div>
@@ -435,10 +545,10 @@ tr:last-child td{border:none;}
     <div class="card-title">How Budget Tracking Works</div>
     <div style="font-size:12px;color:var(--mut);line-height:1.8;">
       Every MCP tool call flows through <code>_dispatch()</code>, which estimates tokens
-      as <code>len(result)&nbsp;//&nbsp;4</code> and records spend automatically &mdash; zero agent effort.<br>
+      as <code>len(result) // 4</code> and records spend automatically &mdash; zero agent effort.<br><br>
       Thresholds:&nbsp;
-      <span style="color:var(--tel);">OK</span> (&lt;80%)&nbsp;
-      <span style="color:var(--amb);">WARNING</span> (80&ndash;99%)&nbsp;
+      <span style="color:var(--cyn);">OK</span> (&lt;80%)&nbsp;&nbsp;
+      <span style="color:var(--amb);">WARNING</span> (80&ndash;99%)&nbsp;&nbsp;
       <span style="color:var(--red);">EXCEEDED</span> (&ge;100%)
     </div>
   </div>

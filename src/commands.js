@@ -418,26 +418,39 @@ async function showDiff(provider) {
   diffPanel.webview.html = `<!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8">
 <style>
-  body { font-family: var(--vscode-font-family, monospace); font-size:12px;
-         background:var(--vscode-editor-background); color:var(--vscode-foreground); padding:16px; }
-  h2 { font-size:14px; margin-bottom:4px; }
-  .meta { color:var(--vscode-descriptionForeground); font-size:11px; margin-bottom:16px; }
-  h3 { font-size:12px; font-weight:600; margin:14px 0 6px; }
-  .item { padding:2px 6px; border-radius:3px; margin:2px 0; font-family:monospace; font-size:11px; }
-  .added   { background:rgba(166,227,161,0.12); color:#a6e3a1; }
-  .removed { background:rgba(243,139,168,0.12); color:#f38ba8; }
-  .changed { background:rgba(249,226,175,0.12); color:#f9e2af; }
-  .empty   { color:var(--vscode-descriptionForeground); font-style:italic; }
-  .badge   { display:inline-block; padding:1px 6px; border-radius:3px; font-size:10px;
-             font-weight:700; margin-left:6px; background:#7C6EFA; color:#fff; }
+  body { font-family: var(--vscode-font-family, system-ui, sans-serif); font-size:12px;
+         background:var(--vscode-editor-background); color:var(--vscode-foreground);
+         padding:20px; line-height:1.6; }
+  h2 { font-size:15px; margin-bottom:4px; display:flex; align-items:center; gap:8px; }
+  .meta { color:var(--vscode-descriptionForeground); font-size:11px; margin-bottom:18px;
+          padding-bottom:12px; border-bottom:1px solid rgba(255,255,255,0.08); }
+  h3 { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px;
+       color:var(--vscode-descriptionForeground); margin:16px 0 6px;
+       display:flex; align-items:center; gap:6px; }
+  h3::before { content:''; display:inline-block; width:3px; height:11px;
+               background:#E53E3E; border-radius:2px; }
+  .item { padding:4px 8px; border-radius:5px; margin:3px 0; font-family:monospace;
+          font-size:11px; display:flex; align-items:center; gap:6px; }
+  .item::before { content:''; display:inline-block; width:6px; height:6px; border-radius:50%; flex-shrink:0; }
+  .added   { background:rgba(63,185,80,0.1);  color:#3FB950; }
+  .added::before { background:#3FB950; }
+  .removed { background:rgba(248,81,73,0.1);  color:#F85149; }
+  .removed::before { background:#F85149; }
+  .changed { background:rgba(210,153,34,0.1); color:#D29922; }
+  .changed::before { background:#D29922; }
+  .empty   { color:var(--vscode-descriptionForeground); font-style:italic; padding:4px 8px; }
+  .badge   { display:inline-block; padding:2px 8px; border-radius:5px; font-size:10px;
+             font-weight:700; background:linear-gradient(135deg,#E53E3E,#C53030);
+             color:#fff; letter-spacing:0.3px; }
+  .count   { font-size:10px; opacity:0.6; font-family:monospace; margin-left:4px; }
 </style></head><body>
-<h2>📊 Graph Diff${sha} <span class="badge">D1</span></h2>
+<h2>Graph Diff${sha} <span class="badge">D1</span></h2>
 <div class="meta">${ts ? `Built ${ts} · ` : ''}${summary}</div>
-<h3>➕ Added Nodes (${diff.added_nodes.length})</h3>${renderList(diff.added_nodes,'➕','added')}
-<h3>➖ Removed Nodes (${diff.removed_nodes.length})</h3>${renderList(diff.removed_nodes,'➖','removed')}
-<h3>✏️ Changed Nodes (${diff.changed_nodes.length})</h3>${renderList(diff.changed_nodes,'✏️','changed')}
-<h3>🔗 Added Edges (${diff.added_edges.length})</h3>${renderList(diff.added_edges.map(e=>e.join(' → ')),'🔗','added')}
-<h3>🗑 Removed Edges (${diff.removed_edges.length})</h3>${renderList(diff.removed_edges.map(e=>e.join(' → ')),'🗑','removed')}
+<h3>Added Nodes <span class="count">(${diff.added_nodes.length})</span></h3>${renderList(diff.added_nodes,'','added')}
+<h3>Removed Nodes <span class="count">(${diff.removed_nodes.length})</span></h3>${renderList(diff.removed_nodes,'','removed')}
+<h3>Changed Nodes <span class="count">(${diff.changed_nodes.length})</span></h3>${renderList(diff.changed_nodes,'','changed')}
+<h3>Added Edges <span class="count">(${diff.added_edges.length})</span></h3>${renderList(diff.added_edges.map(e=>e.join(' → ')),'','added')}
+<h3>Removed Edges <span class="count">(${diff.removed_edges.length})</span></h3>${renderList(diff.removed_edges.map(e=>e.join(' → ')),'','removed')}
 </body></html>`;
 
   provider.post('diffLoaded', { summary, added: diff.added_nodes.length, removed: diff.removed_nodes.length, changed: diff.changed_nodes.length });
@@ -479,14 +492,24 @@ async function analyzeImpact(provider) {
   impactPanel.webview.html = `<!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8">
 <style>
-  body { font-family:var(--vscode-font-family,monospace); font-size:12px;
-         background:var(--vscode-editor-background); color:var(--vscode-foreground); padding:16px; }
-  pre  { font-family:monospace; font-size:11px; line-height:1.6; white-space:pre-wrap; word-break:break-word; }
-  .badge { display:inline-block; padding:1px 6px; border-radius:3px;
-           font-size:10px; font-weight:700; background:#f9e2af; color:#1e1e2e; margin-left:6px; }
+  body { font-family:var(--vscode-font-family,system-ui,sans-serif); font-size:12px;
+         background:var(--vscode-editor-background); color:var(--vscode-foreground);
+         padding:20px; line-height:1.6; }
+  h2 { font-size:15px; display:flex; align-items:center; gap:8px; margin-bottom:4px; }
+  .subtitle { color:var(--vscode-descriptionForeground); font-size:11px; margin-bottom:18px;
+              padding-bottom:12px; border-bottom:1px solid rgba(255,255,255,0.08); }
+  pre { font-family:monospace; font-size:11px; line-height:1.7; white-space:pre-wrap;
+        word-break:break-word;
+        background:rgba(255,255,255,0.04); padding:14px; border-radius:8px;
+        border:1px solid rgba(255,255,255,0.08); }
+  .badge { display:inline-block; padding:2px 8px; border-radius:5px;
+           font-size:10px; font-weight:700;
+           background:linear-gradient(135deg,#D29922,#B7790F);
+           color:#fff; letter-spacing:0.3px; }
 </style></head><body>
-<h2 style="font-size:14px">⚠️ Impact: <code>${escapeHtml(symbol)}</code> <span class="badge">D2</span></h2>
-<pre>${escaped || 'No output received — is graph built?'}</pre>
+<h2>Impact: <code>${escapeHtml(symbol)}</code> <span class="badge">D2</span></h2>
+<div class="subtitle">BFS depth: ${depthNum} &nbsp;·&nbsp; Dependents that would be affected by a change</div>
+<pre>${escaped || 'No output received — is graph built?\nRun: Build Graph or Build Fast (LSP) first.'}</pre>
 </body></html>`;
 }
 

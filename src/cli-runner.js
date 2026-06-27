@@ -42,25 +42,81 @@ function initCliRunner({ statusBarItem, getPanel }) {
  * @param {string}   cwd
  * @returns {import('child_process').ChildProcess}
  */
-function spawnCLI(cmd, args, cwd) {
-  let command  = cmd;
-  let fullArgs = args;
+/**
+ * Resolve the pruvagraph executable path.
+ * Priority: (1) known local-packages Scripts dir, (2) PATH, (3) python -m fallback.
+ * @returns {{ command: string, prefix: string[] }}
+ */
+function resolvePruvaGraph() {
+  const os   = require('os');
+  const home = os.homedir();
 
-  try {
-    execSync(`${cmd} --version`, { stdio: 'ignore' });
-  } catch {
-    // Not in PATH — fall back to python -m pruvagraph
-    command  = 'python';
-    fullArgs = cmd === 'pruvagraph'
-      ? ['-m', 'pruvagraph', ...args]
-      : ['-m', 'pruvagraph', ...args.slice(1)];
+  // Windows Microsoft Store Python — most common case for this project
+  const msStoreCandidates = (() => {
+    try {
+      const base = path.join(home, 'AppData', 'Local', 'Packages');
+      if (!fs.existsSync(base)) return [];
+      return fs.readdirSync(base)
+        .filter(d => d.startsWith('PythonSoftwareFoundation.Python'))
+        .map(d => path.join(base, d, 'LocalCache', 'local-packages',
+                            ...d.match(/Python\.(\d+)/)
+                              ? [`Python${d.match(/Python\.(\d+)/)[1]}`]
+                              : ['Python313'],
+                            'Scripts', 'pruvagraph.exe'));
+    } catch { return []; }
+  })();
+
+  // Standard locations
+  const candidates = [
+    ...msStoreCandidates,
+    path.join(home, 'AppData', 'Local', 'Programs', 'Python', 'Python313', 'Scripts', 'pruvagraph.exe'),
+    path.join(home, 'AppData', 'Local', 'Programs', 'Python', 'Python312', 'Scripts', 'pruvagraph.exe'),
+    path.join(home, 'AppData', 'Local', 'Programs', 'Python', 'Python311', 'Scripts', 'pruvagraph.exe'),
+    path.join(home, 'AppData', 'Roaming', 'Python', 'Python313', 'Scripts', 'pruvagraph.exe'),
+    path.join(home, 'AppData', 'Roaming', 'Python', 'Python312', 'Scripts', 'pruvagraph.exe'),
+  ];
+
+  for (const candidate of candidates) {
+    if (fs.existsSync(candidate)) {
+      return { command: candidate, prefix: [] };
+    }
   }
 
-  return spawn(command, fullArgs, {
-    cwd,
-    shell: false,
-    env: { ...process.env },
-  });
+  // Try PATH
+  try {
+    execSync('pruvagraph --help', { stdio: 'ignore', timeout: 3000 });
+    return { command: 'pruvagraph', prefix: [] };
+  } catch {}
+
+  // Final fallback: python -m pruvagraph
+  return { command: 'python', prefix: ['-m', 'pruvagraph'] };
+}
+
+/**
+ * Spawn a CLI sub-process. Attempts direct exe path first, then PATH, then python -m fallback.
+ * @param {string}   cmd   e.g. 'pruvagraph'
+ * @param {string[]} args
+ * @param {string}   cwd
+ * @returns {import('child_process').ChildProcess}
+ */
+function spawnCLI(cmd, args, cwd) {
+  const utf8Env = {
+    ...process.env,
+    PYTHONIOENCODING: 'utf-8',
+    PYTHONUTF8: '1',
+    PYTHONLEGACYWINDOWSSTDIO: '0',
+  };
+
+  if (cmd !== 'pruvagraph') {
+    // Non-pruvagraph commands (pip, uvx, etc.) — use directly
+    return spawn(cmd, args, { cwd, shell: false, env: utf8Env });
+  }
+
+  const { command, prefix } = resolvePruvaGraph();
+  const fullArgs = [...prefix, ...args];
+
+  log(`[spawnCLI] ${command} ${fullArgs.join(' ')}`);
+  return spawn(command, fullArgs, { cwd, shell: false, env: utf8Env });
 }
 
 // ── runCLI ───────────────────────────────────────────────────────────────────
