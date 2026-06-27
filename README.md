@@ -2,9 +2,6 @@
 
 <img width="2976" height="1438" alt="Gemini_Generated_Image_9z09pu9z09pu9z09" src="https://github.com/user-attachments/assets/39b951ec-bd38-41fa-8fd6-a522c7ed1d1e" />
 
-
-<img src="docs/logo.png" width="88" alt="PruvaGraph logo">
-
 # PruvaGraph
 
 ### Your codebase as a knowledge graph. Your AI bills as a rounding error.
