@@ -2,7 +2,7 @@
   "name": "pruvalex-pruvagraph",
   "displayName": "PRUVALEX PruvaGraph",
   "description": "The unified engine for cost-optimized and secure LLM interactions.",
-  "version": "1.9.0",
+  "version": "1.9.1",
   "publisher": "PRUVALEX",
   "license": "MIT",
   "icon": "icon.png",

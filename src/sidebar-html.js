@@ -877,7 +877,7 @@ body {
   <a id="link-github" tabindex="0"
 >GitHub</a>
   <span class="footer-dot">·</span>
-  <span>v1.9.0</span>
+  <span>v1.9.1</span>
 </div>
 
 <script nonce="${nonce}">

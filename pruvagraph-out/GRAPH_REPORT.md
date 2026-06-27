@@ -6,266 +6,450 @@
 
 | Metric | Value |
 |--------|-------|
-| Total nodes | 832 |
-| Total edges | 999 |
-| Communities | 62 |
-| Function nodes | 456 |
-| Module nodes | 112 |
-| Concept nodes | 89 |
-| Class nodes | 75 |
-| External nodes | 74 |
-| Interface nodes | 17 |
-| Doc nodes | 9 |
-| Top languages | python, typescript, javascript, json, bash |
+| Total nodes | 1,634 |
+| Total edges | 1,913 |
+| Communities | 108 |
+| Function nodes | 659 |
+| Concept nodes | 501 |
+| Class nodes | 160 |
+| Module nodes | 158 |
+| External nodes | 115 |
+| Doc nodes | 40 |
+| Interface nodes | 1 |
+| Top languages | python, typescript, javascript, json, yaml |
 
 ## Architectural Communities
 
-### Community 0 (114 nodes, 24 files)
-**Members**: __future__, typing, pathlib, dataclasses, benchmark, run_benchmark
-**Breakdown**: external: 16, module: 20, function: 60, class: 18
+### Community 0 (235 nodes, 41 files)
+**Members**: json, __init__, __future__, pruvagraph.cache, pruvagraph.cost, pruvagraph.pipeline
+**Breakdown**: external: 27, module: 39, function: 134, class: 35
 
-### Community 1 (98 nodes, 18 files)
-**Members**: vscode, fs, container, events, db, buildCoreEngine
-**Breakdown**: external: 13, module: 17, function: 54, class: 10, interface: 4
+### Community 1 (132 nodes, 24 files)
+**Members**: assert-perf-contracts, fs, path, clean-vsix, clean-vsix, build
+**Breakdown**: module: 24, external: 19, function: 78, class: 11
 
-### Community 2 (47 nodes, 8 files)
-**Members**: analyze, analyze, _god_nodes, _isolated_nodes, _top_external, _community_summaries
-**Breakdown**: module: 8, function: 37, external: 2
+### Community 2 (103 nodes, 13 files)
+**Members**: sql, DEPLOYMENT_CHECKLIST, PRUVALEX PruvaGraph v1.9.0 — Deployment Checklist, ✅ Verified Build Targets, 🧪 Deployment Acceptance Criteria, 📌 Notes
+**Breakdown**: external: 4, doc: 13, concept: 86
 
-### Community 3 (46 nodes, 1 files)
-**Members**: extension, PruvaGraphViewProvider, name, activate, deactivate, runBuild
-**Breakdown**: module: 1, class: 2, function: 42, external: 1
+### Community 3 (93 nodes, 15 files)
+**Members**: __main__, sys, pruvagraph.cli, tempfile, pruvagraph, conftest
+**Breakdown**: module: 13, external: 14, function: 23, class: 43
 
-### Community 4 (40 nodes, 6 files)
-**Members**: re, dedup, DedupGroup, DedupResult, deduplicate, project_extraction
-**Breakdown**: external: 1, module: 5, class: 2, function: 32
+### Community 4 (61 nodes, 4 files)
+**Members**: activation.bench, CONTRACTS, MOCK_WORKSPACE_ROOT, fs, start, core
+**Breakdown**: module: 4, function: 51, external: 6
 
-### Community 5 (39 nodes, 6 files)
-**Members**: asyncio, conftest, sample_extractions, sample_graph, pytest, test_dead_layers
-**Breakdown**: external: 5, module: 5, function: 17, class: 12
+### Community 5 (54 nodes, 5 files)
+**Members**: budget_governor, _session_path, _db_path, _ensure_db, _load_session, _session_total_spend
+**Breakdown**: module: 5, function: 38, external: 5, class: 6
 
-### Community 6 (30 nodes, 4 files)
-**Members**: __init__, pruvagraph.cache, pruvagraph.cost, pruvagraph.pipeline, pruvagraph.query, pipeline
-**Breakdown**: module: 4, external: 11, class: 3, function: 12
+### Community 6 (45 nodes, 4 files)
+**Members**: contextLensProvider, ContextLensViewProvider, html, vscode, @pruvalex/shared-types, costDashboardProvider
+**Breakdown**: module: 4, class: 3, function: 34, external: 3, interface: 1
 
-### Community 7 (30 nodes, 2 files)
-**Members**: CONTRIBUTING, Contributing to PruvaGraph, Prerequisites, Local setup, Running tests, Building a graph locally
-**Breakdown**: doc: 2, concept: 28
+### Community 7 (34 nodes, 2 files)
+**Members**: BENCHMARKS, BENCHMARKS — Methodology & Real Results, Benchmark Results — v1.9.0, Run 1: This Repo (PruvaGraph itself), Reproduce:, Output: pruvagraph-out/benchmark_results.jsonl
+**Breakdown**: doc: 2, concept: 29, external: 3
 
-### Community 8 (28 nodes, 4 files)
-**Members**: sys, hooks, run_hook, _evaluate_read, _load_node_index, _find_project_root
-**Breakdown**: external: 2, module: 3, function: 23
+### Community 8 (33 nodes, 1 files)
+**Members**: cli, RootGroup, main, query, cost_report_cmd, report_dashboard
+**Breakdown**: module: 1, class: 1, function: 29, external: 2
 
-### Community 9 (25 nodes, 3 files)
-**Members**: ast_diff, get_changed_functions, get_changed_files, get_untracked_files, should_full_reextract, get_git_file_hash
-**Breakdown**: module: 3, function: 21, external: 1
+### Community 9 (33 nodes, 1 files)
+**Members**: test_privacy_adversarial, TestOpenAIKey, TestAnthropicKey, TestGitHubPAT, TestStripeKey, TestAWSCredentials
+**Breakdown**: module: 1, class: 18, function: 13, external: 1
 
-### Community 10 (22 nodes, 1 files)
+### Community 10 (31 nodes, 1 files)
+**Members**: mcp_server, _load_graph, _query_graph, _get_dependencies, _find_callers, _get_summary
+**Breakdown**: module: 1, function: 30
+
+### Community 11 (26 nodes, 1 files)
+**Members**: extension, ModuleRegistry, shouldBeActive, isActive, disposable, stylesPath
+**Breakdown**: module: 1, class: 1, function: 14, external: 10
+
+### Community 12 (24 nodes, 1 files)
+**Members**: sidebar-html, getWebviewHtml, send, attachTab, attachBtn, attachLink
+**Breakdown**: module: 1, function: 23
+
+### Community 13 (22 nodes, 1 files)
 **Members**: README, PruvaGraph, Why PruvaGraph?, Quick Start, Install, Or with uv (faster)
 **Breakdown**: doc: 1, concept: 20, external: 1
 
-### Community 11 (21 nodes, 1 files)
-**Members**: cli, main, query, cost_report_cmd, export, install
-**Breakdown**: module: 1, function: 19, external: 1
+### Community 14 (21 nodes, 1 files)
+**Members**: CHANGELOG, Changelog, [1.9.0] — 2026-06-21, Added — Settings Gating: Full End-to-End Module Control, Added — Section 8 UI: 4-Tab Analytics Dashboard, Added — External Benchmark: pallets/click
+**Breakdown**: doc: 1, concept: 20
 
-### Community 12 (20 nodes, 1 files)
-**Members**: CHANGELOG, Changelog, [1.4.0] — 2026-06-17, Added — Precision Engine: Performance + Correct Claude Code Integration + Visual Polish, [1.3.0] — 2026-06-17, Added — 3 New Cost-Reduction Layers + 4 Gap Fixes (total: 31 layers)
-**Breakdown**: doc: 1, concept: 19
+### Community 15 (21 nodes, 1 files)
+**Members**: MISSION_COMPLETE, 🎉 MISSION COMPLETE — PRUVALEX PruvaGraph v1.4.0 Savings Receipt Implementation, 📊 Executive Summary, **Key Achievements**, 📋 What Was Delivered, **1. Core Features Implemented**
+**Breakdown**: doc: 1, concept: 20
 
-### Community 13 (19 nodes, 1 files)
+### Community 16 (21 nodes, 1 files)
+**Members**: PROJECT_STATUS, PRUVALEX PruvaGraph — Project Status Report, TL;DR, Phase 3 — World-Class Transformation (COMPLETE ✅), Item 12 — Modularization, Item 13 — TypeScript-lite (@ts-check + JSDoc)
+**Breakdown**: doc: 1, concept: 20
+
+### Community 17 (21 nodes, 1 files)
+**Members**: VISUAL_SUMMARY, 📊 PRUVALEX PruvaGraph v1.4.0 — Visual Implementation Summary, 🎯 One-Page Overview, **What Was Built**, 📁 Files Delivered, **Code Files (740+ lines total)**
+**Breakdown**: doc: 1, concept: 20
+
+### Community 18 (21 nodes, 1 files)
+**Members**: PUBLISHING, Prerequisites, Step 1: Set Up Azure DevOps and Personal Access Token, 1.1 Create an Azure DevOps Organization (if you don't have one), 1.2 Generate a Personal Access Token (PAT), Step 2: Register as a Publisher on the Marketplace
+**Breakdown**: doc: 1, concept: 20
+
+### Community 19 (20 nodes, 1 files)
+**Members**: 📚 PRUVALEX PruvaGraph v1.4.0 — Complete Documentation Index, 🎯 Start Here, **🚀 Want to Get Started in 30 Seconds?**, **💰 Want to Understand the Savings Receipt?**, **📊 Want the Executive Summary?**, **🔍 Want a One-Page Visual Overview?**
+**Breakdown**: concept: 20
+
+### Community 20 (19 nodes, 1 files)
 **Members**: monorepo, PackageInfo, MonorepoLayout, MonorepoBuildResult, detect_monorepo, _parse_pnpm_workspace
 **Breakdown**: module: 1, class: 3, function: 15
 
-### Community 14 (16 nodes, 1 files)
+### Community 21 (19 nodes, 1 files)
+**Members**: PRUVALEX PruvaGraph — Project Status Report, 1. Executive Summary, 2. Workspace Structure & Configuration, 2.1 Root Workspace (PruvaGraph/), 2.2 Active Workspace Packages, **1. `@pruvalex/shared-types`** (packages/shared-types/)
+**Breakdown**: concept: 19
+
+### Community 22 (17 nodes, 1 files)
+**Members**: STEP 6 — Final Validation Report, PruvaGraph v1.9.0 Extension — 100% Enterprise-Grade Command Compliance, Executive Summary, STEP 1 — Master Command Inventory, Declared Commands (from package.json), Registered Commands (from extension.js lines 55-83)
+**Breakdown**: concept: 17
+
+### Community 23 (16 nodes, 1 files)
 **Members**: installer, install_all, _write_vscode, _write_cursor, _install_claude_code, _register_via_claude_cli
 **Breakdown**: module: 1, function: 14, external: 1
 
-### Community 15 (15 nodes, 1 files)
+### Community 24 (16 nodes, 1 files)
+**Members**: query, query, query_async, _log_benchmark, _tokenise, _score_subgraph
+**Breakdown**: module: 1, function: 14, external: 1
+
+### Community 25 (16 nodes, 1 files)
+**Members**: 2. Detailed Package Specifications, 2.1 @pruvalex/shared-types, 2.2 @pruvalex/core-engine, GraphStore (`src/db/connection.ts`), MCPRouter (`src/mcp/router.ts`), TokenLedger (`src/mcp/token-ledger.ts`)
+**Breakdown**: concept: 16
+
+### Community 26 (15 nodes, 1 files)
 **Members**: compress, CompressionResult, compress, compress_batch, _get_pipeline, _strip_license_header
 **Breakdown**: module: 1, class: 1, function: 13
 
-### Community 16 (15 nodes, 1 files)
-**Members**: query, query, query_async, _log_benchmark, _tokenise, _score_subgraph
-**Breakdown**: module: 1, function: 13, external: 1
-
-### Community 17 (15 nodes, 1 files)
+### Community 27 (15 nodes, 1 files)
 **Members**: test_monorepo, TestSingleRepo, TestPnpm, TestNx, TestLerna, TestRush
 **Breakdown**: module: 1, class: 11, function: 2, external: 1
 
-### Community 18 (14 nodes, 1 files)
+### Community 28 (15 nodes, 1 files)
+**Members**: PULL_REQUEST_TEMPLATE, Summary, Type of Change, Related Issues, Architecture Checklist (MANDATORY — PRs failing any of these will not be merged), Core Engine Integrity
+**Breakdown**: doc: 1, concept: 14
+
+### Community 29 (15 nodes, 1 files)
+**Members**: Initialize as a workspace package, Step 2: Implement the Module Contract, Step 3: Add the Repository, Step 4: Add the SQL Migration, Step 5: Register the Module, Step 6: Add MCP Tool Documentation
+**Breakdown**: concept: 15
+
+### Community 30 (14 nodes, 1 files)
 **Members**: docstring_extractor, extract_docstrings, _extract_python, _extract_jsdoc, _extract_go, _extract_rust
 **Breakdown**: module: 1, function: 13
 
-### Community 19 (13 nodes, 1 files)
-**Members**: extension, ModuleRegistry, core, registry, activate, deactivate
-**Breakdown**: module: 1, class: 1, function: 4, external: 7
-
-### Community 20 (13 nodes, 1 files)
+### Community 31 (13 nodes, 1 files)
 **Members**: deterministic_router, _register, _find_callers, _get_dependencies, _list_communities, _find_god_nodes
 **Breakdown**: module: 1, function: 12
 
-### Community 21 (13 nodes, 1 files)
+### Community 32 (13 nodes, 1 files)
 **Members**: CLEAN_COMMIT_GRAPH_SETUP, Clean Commit Graph Setup for PruvaGraph, Step 1: Install Husky and Commitlint, Step 2: Configure Commitlint, Step 3: Add Husky `commit-msg` Hook, Step 4: Use the Git Commit Template
 **Breakdown**: doc: 1, concept: 12
 
-### Community 22 (13 nodes, 1 files)
-**Members**: module-contract, ModuleRepository, IGraphStore, IMCPTransport, PackageJson, TypeDeclarationIndex
-**Breakdown**: module: 1, interface: 11, external: 1
+### Community 33 (13 nodes, 1 files)
+**Members**: CONTRIBUTING, Project structure, Contribution workflow, Modular architecture guidance, Coding standards, PR requirements
+**Breakdown**: doc: 1, concept: 12
 
-### Community 23 (11 nodes, 2 files)
-**Members**: analyzer, Analyzer, in, addNode, addEdge, _resolveImport
-**Breakdown**: module: 2, class: 3, function: 4, external: 2
+### Community 34 (13 nodes, 1 files)
+**Members**: New: Savings Receipt module, Step 2: Deploy Extension, Step 3: Reload VS Code, 💻 How to View the Savings Receipt, **Method 1: Automatic Display (Recommended)**, **Method 2: Manual Open (via Command Palette)**
+**Breakdown**: concept: 13
 
-### Community 24 (11 nodes, 1 files)
+### Community 35 (13 nodes, 1 files)
+**Members**: PROJECT_STATUS, Overview, Core Engine, Available capabilities, Stabilization notes, Modules
+**Breakdown**: doc: 1, concept: 12
+
+### Community 36 (13 nodes, 1 files)
+**Members**: README, Enterprise Architecture, What Makes PRUVALEX Enterprise-Ready, Public-Facing Feature Summary, Core Engine, DriftGuard
+**Breakdown**: doc: 1, concept: 12
+
+### Community 37 (12 nodes, 1 files)
+**Members**: bug_report, Bug Description, Which Module?, Steps to Reproduce, Expected Behavior, Actual Behavior
+**Breakdown**: doc: 1, concept: 10, external: 1
+
+### Community 38 (12 nodes, 1 files)
+**Members**: → pruvagraph-out/benchmark_results.jsonl, Features, Core: Knowledge Graph Engine, 5 Integrated Modules (toggleable), Analytics Dashboard (VS Code), Configuration
+**Breakdown**: concept: 12
+
+### Community 39 (12 nodes, 1 files)
+**Members**: enterprise-compliance-brief, AI Coding Compliance Brief for EU-Regulated Organizations, Executive Summary, EU AI Act Alignment, Article 9 — Risk Management System, Article 13 — Transparency and Provision of Information
+**Breakdown**: doc: 1, concept: 11
+
+### Community 40 (11 nodes, 1 files)
 **Members**: config_parser, parse_config_file, _parse_json, _parse_package_json, _parse_tsconfig, _parse_yaml
 **Breakdown**: module: 1, function: 10
 
-### Community 25 (11 nodes, 1 files)
+### Community 41 (11 nodes, 1 files)
 **Members**: llm_extract, extract_doc_batch, _call_claude, _call_gemini, _call_openai, _call_ollama
 **Breakdown**: module: 1, function: 10
 
-### Community 26 (8 nodes, 1 files)
-**Members**: session_tracker, _NodeRecord, SessionTracker, tick, already_seen, record_seen
-**Breakdown**: module: 1, class: 2, function: 5
+### Community 42 (11 nodes, 1 files)
+**Members**: schema_parser, parse_schema_file, is_parseable_schema, _try_openapi, parse_openapi, parse_prisma
+**Breakdown**: module: 1, function: 10
 
-### Community 27 (7 nodes, 1 files)
+### Community 43 (11 nodes, 1 files)
+**Members**: ADR-003, Context, Decision, Options Analysis, Option A: PyInstaller Binaries, Option B: Docker Sidecar
+**Breakdown**: doc: 1, concept: 10
+
+### Community 44 (10 nodes, 1 files)
+**Members**: dedup, DedupGroup, DedupResult, deduplicate, project_extraction, _tokenize
+**Breakdown**: module: 1, class: 2, function: 7
+
+### Community 45 (10 nodes, 1 files)
+**Members**: test_impact_analyzer, TestNodeResolution, TestErrorCases, TestDirectCallers, TestTransitiveCallers, TestRiskScoring
+**Breakdown**: module: 1, class: 6, function: 2, external: 1
+
+### Community 46 (10 nodes, 1 files)
+**Members**: module_request, Request Type, Problem Statement, Proposed Solution, If proposing a new module:, If proposing a feature for an existing module:
+**Breakdown**: doc: 1, concept: 8, external: 1
+
+### Community 47 (9 nodes, 1 files)
+**Members**: free_doc_parser, parse_free, _parse_pdf, _parse_docx, _parse_markdown, _parse_rst
+**Breakdown**: module: 1, function: 8
+
+### Community 48 (9 nodes, 1 files)
+**Members**: hooks, run_hook, _evaluate_read, _load_node_index, _find_project_root, _rel
+**Breakdown**: module: 1, function: 8
+
+### Community 49 (9 nodes, 1 files)
+**Members**: test_context_lens, TestToolCallRecord, TestRecordToolCall, TestGetActiveContext, TestMeasureTokenUsage, TestTraceLastToolCalls
+**Breakdown**: module: 1, class: 5, function: 2, external: 1
+
+### Community 50 (9 nodes, 1 files)
+**Members**: 📋 Deployment Steps, 1. Prepare the repo, 2. Install dependencies, 3. Run the extension syntax and smoke tests, 4. Run the Python test suite, 5. Build the Python package
+**Breakdown**: concept: 9
+
+### Community 51 (9 nodes, 1 files)
+**Members**: Option B: Manual VSIX Install, **Step 2: Reload VS Code**, **Step 3: Open a Folder**, **Step 4: Click "Build Graph"**, 🎯 What You'll See, **VS Code Sidebar**
+**Breakdown**: concept: 9
+
+### Community 52 (9 nodes, 1 files)
+**Members**: SECURITY, Supported Versions, Reporting a Vulnerability, How to Report, What to Include, What Happens Next
+**Breakdown**: doc: 1, concept: 8
+
+### Community 53 (9 nodes, 1 files)
+**Members**: ADR-001, Context, Decision, Options Considered, Option A: One SQLite DB per module (5 files), Option B: One SQLite DB, all tables in one schema (no namespacing)
+**Breakdown**: doc: 1, concept: 8
+
+### Community 54 (8 nodes, 1 files)
+**Members**: embedder, build_embedding_index, _build_query_embedding, semantic_search, semantic_search_with_scores, index_is_stale
+**Breakdown**: module: 1, function: 6, external: 1
+
+### Community 55 (8 nodes, 1 files)
+**Members**: importance_scorer, score_files, _score_single, get_extraction_depth, prioritise_extraction_order, _batch_git_frequency
+**Breakdown**: module: 1, function: 7
+
+### Community 56 (8 nodes, 1 files)
+**Members**: test_dead_layers, test_l5_compression_imported_in_llm_extract, test_l5_compress_called_before_llm, test_n9_update_field_in_buildconfig, test_n9_build_graph_accepts_update, test_n9_ast_diff_is_git_repo
+**Breakdown**: module: 1, function: 7
+
+### Community 57 (8 nodes, 1 files)
+**Members**: test_driftguard, TestValidationResult, TestIndexInstalledPackages, TestValidateImportValid, TestValidateImportRenamed, TestValidateImportUnknown
+**Breakdown**: module: 1, class: 6, external: 1
+
+### Community 58 (8 nodes, 2 files)
+**Members**: detect, FileType, classify, collect_files, summarize, enum
+**Breakdown**: module: 1, class: 2, function: 3, external: 2
+
+### Community 59 (7 nodes, 3 files)
+**Members**: ci, json,, pruvagraph;, bump-version, pathlib,, install
+**Breakdown**: module: 3, external: 3, function: 1
+
+### Community 60 (7 nodes, 1 files)
 **Members**: batch, Batch, BatchPlan, pack_batches, estimate_cost, format_plan_summary
 **Breakdown**: module: 1, class: 2, function: 4
 
-### Community 28 (7 nodes, 1 files)
-**Members**: prompt_cache, SessionManager, CacheStats, CachedPromptBuilder, BatchCachedExtractor, hash_token
-**Breakdown**: module: 1, class: 4, function: 2
+### Community 61 (7 nodes, 1 files)
+**Members**: subgraph, extract_query_subgraph, _rank_by_relevance, find_seed_nodes, build_query_context, prune_context
+**Breakdown**: module: 1, function: 6
 
-### Community 29 (7 nodes, 1 files)
-**Members**: SECURITY, 🛡️ PRUVALEX Security Policy, 🛑 Reporting a Vulnerability, 🔐 Encrypted Communication (PGP/GPG), 📝 What to Include in Your Report, ⏱️ Our SLA (Service Level Agreement)
+### Community 62 (7 nodes, 1 files)
+**Members**: utils, setOutputChannel, log, getNonce, escapeHtml, getWorkspaceRoot
+**Breakdown**: module: 1, function: 6
+
+### Community 63 (7 nodes, 1 files)
+**Members**: CLAUDE, PruvaGraph — Codebase Knowledge Graph, MANDATORY: Use Graph Tools Before Reading Files, Rebuild the Graph, Output Files, Auto-Injected Context (PruvaGraph Arch5 — regenerated on every build, do not edit by hand)
 **Breakdown**: doc: 1, concept: 6
 
-### Community 30 (5 nodes, 1 files)
-**Members**: router, MCPRouter, start, handler, latencyMs
-**Breakdown**: module: 1, class: 1, function: 3
+### Community 64 (7 nodes, 1 files)
+**Members**: CLAUDE, PruvaGraph — Codebase Knowledge Graph, MANDATORY: Use Graph Tools Before Reading Files, Rebuild the Graph, Output Files, Auto-Injected Context (PruvaGraph Arch5 — regenerated on every build, do not edit by hand)
+**Breakdown**: doc: 1, concept: 6
 
-### Community 31 (5 nodes, 1 files)
+### Community 65 (6 nodes, 1 files)
+**Members**: ADR-004, Status, Context, Decision, Migration Path, Consequences
+**Breakdown**: doc: 1, concept: 5
+
+### Community 66 (5 nodes, 1 files)
+**Members**: styles, extension-header, title, cost-dashboard, pruvagraph-container
+**Breakdown**: module: 1, class: 4
+
+### Community 67 (5 nodes, 1 files)
 **Members**: prewarm, predict_queries, prewarm_cache, prewarm_in_background, threading
 **Breakdown**: module: 1, function: 3, external: 1
 
-### Community 32 (5 nodes, 1 files)
+### Community 68 (5 nodes, 1 files)
 **Members**: test_build, test_build_nx_graph_merges_nodes_and_edges, test_stub_node_for_missing_edge_target, test_parallel_edges_deduped, pruvagraph.build
 **Breakdown**: module: 1, function: 3, external: 1
 
-### Community 33 (5 nodes, 1 files)
+### Community 69 (5 nodes, 1 files)
 **Members**: test_deterministic_router, test_find_callers, test_get_dependencies, test_god_nodes, pruvagraph.deterministic_router
 **Breakdown**: module: 1, function: 3, external: 1
 
-### Community 34 (5 nodes, 1 files)
+### Community 70 (5 nodes, 1 files)
 **Members**: test_prewarm, test_predict_queries_includes_basics, test_predict_queries_auth_stems, test_predict_queries_test_file, pruvagraph.prewarm
 **Breakdown**: module: 1, function: 3, external: 1
 
-### Community 35 (5 nodes, 1 files)
-**Members**: CLAUDE, PruvaGraph — Codebase Knowledge Graph, MANDATORY: Use Graph Tools Before Reading Files, Rebuild the Graph, Output Files
-**Breakdown**: doc: 1, concept: 4
+### Community 71 (3 nodes, 2 files)
+**Members**: package, validation,, package
+**Breakdown**: module: 2, external: 1
 
-### Community 36 (3 nodes, 1 files)
-**Members**: events, IEventBus, OmniMCPEventMap
-**Breakdown**: module: 1, interface: 2
+### Community 72 (3 nodes, 1 files)
+**Members**: CHANGELOG, [1.0.0] - 2026-06-18, Added
+**Breakdown**: doc: 1, concept: 2
 
-### Community 37 (3 nodes, 1 files)
-**Members**: install, X, json,
-**Breakdown**: module: 1, function: 1, external: 1
-
-### Community 38 (3 nodes, 1 files)
-**Members**: webview-shell, getWebviewShell, omnimcp/packages/shared-ui/src/tokens.css.js
-**Breakdown**: module: 1, function: 1, external: 1
-
-### Community 39 (2 nodes, 1 files)
-**Members**: ci, pruvagraph;
+### Community 73 (2 nodes, 1 files)
+**Members**: package, validation.
 **Breakdown**: module: 1, external: 1
 
-### Community 40 (2 nodes, 1 files)
-**Members**: tokens.css, DESIGN_TOKENS
-**Breakdown**: module: 1, function: 1
-
-### Community 41 (1 nodes, 1 files)
-**Members**: package
+### Community 74 (1 nodes, 1 files)
+**Members**: release
 **Breakdown**: module: 1
 
-### Community 42 (1 nodes, 1 files)
-**Members**: tsconfig
+### Community 75 (1 nodes, 1 files)
+**Members**: size-check
 **Breakdown**: module: 1
 
-### Community 43 (1 nodes, 1 files)
-**Members**: package
+### Community 76 (1 nodes, 1 files)
+**Members**: 3150442d-02ac-4ae3-847c-e291ecabbccd
 **Breakdown**: module: 1
 
-### Community 44 (1 nodes, 1 files)
-**Members**: package
+### Community 77 (1 nodes, 1 files)
+**Members**: 63946ed1-7c0c-4b03-acfb-a203fcfea016
 **Breakdown**: module: 1
 
-### Community 45 (1 nodes, 1 files)
+### Community 78 (1 nodes, 1 files)
+**Members**: c758de6b-7734-4a38-bf05-76310320d548
+**Breakdown**: module: 1
+
+### Community 79 (1 nodes, 1 files)
+**Members**: 3150442d-02ac-4ae3-847c-e291ecabbccd
+**Breakdown**: module: 1
+
+### Community 80 (1 nodes, 1 files)
+**Members**: 63946ed1-7c0c-4b03-acfb-a203fcfea016
+**Breakdown**: module: 1
+
+### Community 81 (1 nodes, 1 files)
+**Members**: 8bd3ac70-fe92-4a47-9e2a-af043bb8b598
+**Breakdown**: module: 1
+
+### Community 82 (1 nodes, 1 files)
+**Members**: c758de6b-7734-4a38-bf05-76310320d548
+**Breakdown**: module: 1
+
+### Community 83 (1 nodes, 1 files)
 **Members**: index
 **Breakdown**: module: 1
 
-### Community 46 (1 nodes, 1 files)
-**Members**: tsconfig
+### Community 84 (1 nodes, 1 files)
+**Members**: .nycrc
 **Breakdown**: module: 1
 
-### Community 47 (1 nodes, 1 files)
-**Members**: package
+### Community 85 (1 nodes, 1 files)
+**Members**: server.lock
 **Breakdown**: module: 1
 
-### Community 48 (1 nodes, 1 files)
-**Members**: package
+### Community 86 (1 nodes, 1 files)
+**Members**: launch
 **Breakdown**: module: 1
 
-### Community 49 (1 nodes, 1 files)
-**Members**: package
+### Community 87 (1 nodes, 1 files)
+**Members**: mcp
 **Breakdown**: module: 1
 
-### Community 50 (1 nodes, 1 files)
-**Members**: package
+### Community 88 (1 nodes, 1 files)
+**Members**: tasks
 **Breakdown**: module: 1
 
-### Community 51 (1 nodes, 1 files)
-**Members**: package
+### Community 89 (1 nodes, 1 files)
+**Members**: jsconfig
 **Breakdown**: module: 1
 
-### Community 52 (1 nodes, 1 files)
-**Members**: package
-**Breakdown**: module: 1
-
-### Community 53 (1 nodes, 1 files)
+### Community 90 (1 nodes, 1 files)
 **Members**: index
 **Breakdown**: module: 1
 
-### Community 54 (1 nodes, 1 files)
-**Members**: tsconfig
+### Community 91 (1 nodes, 1 files)
+**Members**: baseline
 **Breakdown**: module: 1
 
-### Community 55 (1 nodes, 1 files)
-**Members**: package
+### Community 92 (1 nodes, 1 files)
+**Members**: server.lock
 **Breakdown**: module: 1
 
-### Community 56 (1 nodes, 1 files)
+### Community 93 (1 nodes, 1 files)
+**Members**: omnimcp
+**Breakdown**: module: 1
+
+### Community 94 (1 nodes, 1 files)
+**Members**: launch
+**Breakdown**: module: 1
+
+### Community 95 (1 nodes, 1 files)
+**Members**: tasks
+**Breakdown**: module: 1
+
+### Community 96 (1 nodes, 1 files)
 **Members**: index
 **Breakdown**: module: 1
 
-### Community 57 (1 nodes, 1 files)
+### Community 97 (1 nodes, 1 files)
+**Members**: tsconfig
+**Breakdown**: module: 1
+
+### Community 98 (1 nodes, 1 files)
+**Members**: package
+**Breakdown**: module: 1
+
+### Community 99 (1 nodes, 1 files)
 **Members**: tsconfig.base
 **Breakdown**: module: 1
 
-### Community 58 (1 nodes, 1 files)
-**Members**: package
+### Community 100 (1 nodes, 1 files)
+**Members**: mcp
 **Breakdown**: module: 1
 
-### Community 59 (1 nodes, 1 files)
+### Community 101 (1 nodes, 1 files)
 **Members**: pyproject
 **Breakdown**: module: 1
 
-### Community 60 (1 nodes, 1 files)
-**Members**: gemini-svg (1).svg
+### Community 102 (1 nodes, 1 files)
+**Members**: test
+**Breakdown**: module: 1
+
+### Community 103 (1 nodes, 1 files)
+**Members**: test
+**Breakdown**: module: 1
+
+### Community 104 (1 nodes, 1 files)
+**Members**: icon.png
 **Breakdown**: doc: 1
 
-### Community 61 (1 nodes, 1 files)
-**Members**: icon.png
+### Community 105 (1 nodes, 1 files)
+**Members**: logo.svg
+**Breakdown**: doc: 1
+
+### Community 106 (1 nodes, 1 files)
+**Members**: icon.svg
+**Breakdown**: doc: 1
+
+### Community 107 (1 nodes, 1 files)
+**Members**: pruvalex-logo.svg
 **Breakdown**: doc: 1
 
 ## High-Coupling Nodes (Refactor Candidates)
@@ -274,51 +458,66 @@ These nodes have the most connections — consider if they can be split.
 
 | Node | Type | In | Out | Total | File |
 |------|------|-----|-----|-------|------|
-| `__future__` | external | 63 | 0 | 63 | ` cost tool/python/pruvagraph/__init__.py` |
-| `extension` | module | 0 | 48 | 48 | `raph optimise LLM cost tool/extension.js` |
-| `pathlib` | external | 47 | 0 | 47 | ` cost tool/python/pruvagraph/ast_diff.py` |
-| `json` | external | 32 | 0 | 32 | `cost tool/python/pruvagraph/benchmark.py` |
-| `typing` | external | 26 | 0 | 26 | `M cost tool/python/pruvagraph/analyze.py` |
-| `cli` | module | 0 | 25 | 25 | `e LLM cost tool/python/pruvagraph/cli.py` |
-| `pipeline` | module | 0 | 25 | 25 | ` cost tool/python/pruvagraph/pipeline.py` |
-| `monorepo` | module | 0 | 24 | 24 | ` cost tool/python/pruvagraph/monorepo.py` |
-| `installer` | module | 0 | 20 | 20 | `cost tool/python/pruvagraph/installer.py` |
-| `mcp_server` | module | 0 | 20 | 20 | `ost tool/python/pruvagraph/mcp_server.py` |
+| `__future__` | external | 79 | 0 | 79 | ` cost tool/python/pruvagraph/__init__.py` |
+| `pathlib` | external | 68 | 0 | 68 | ` cost tool/python/pruvagraph/ast_diff.py` |
+| `json` | external | 49 | 0 | 49 | `e LLM cost tool/.github/workflows/ci.yml` |
+| `test_privacy_adversarial` | module | 0 | 37 | 37 | `python/tests/test_privacy_adversarial.py` |
+| `cli` | module | 0 | 36 | 36 | `e LLM cost tool/python/pruvagraph/cli.py` |
+| `mcp_server` | module | 0 | 36 | 36 | `ost tool/python/pruvagraph/mcp_server.py` |
+| `test_mcp_server` | module | 0 | 36 | 36 | `ost tool/python/tests/test_mcp_server.py` |
+| `driftguard.bench` | module | 0 | 29 | 29 | `ruvaGraph/benchmarks/driftguard.bench.ts` |
+| `typing` | external | 29 | 0 | 29 | `M cost tool/python/pruvagraph/analyze.py` |
+| `extension` | module | 0 | 27 | 27 | `cy/PruvaGraph/extension/src/extension.ts` |
+
+## Surprising Cross-Community Connections
+
+Edges that cross architectural boundaries — worth reviewing.
+
+- `router` (community 0) **defines** `Tier` (community 58)
+- `DOCUMENTATION_INDEX` (community 2) **references** `MISSION_COMPLETE` (community 15)
+- `DOCUMENTATION_INDEX` (community 2) **references** `VISUAL_SUMMARY` (community 17)
+- `DOCUMENTATION_INDEX` (community 2) **contains** `📚 PRUVALEX PruvaGraph v1.4.0 — Complete Documentation Index` (community 19)
+- `PROJECT_STATUS_COMPLETE` (community 2) **contains** `PRUVALEX PruvaGraph — Project Status Report` (community 21)
+- `STEP_6_FINAL_VALIDATION` (community 2) **contains** `STEP 6 — Final Validation Report` (community 22)
+- `PRUVALEX PruvaGraph — Detailed Deployment & Technical Guide` (community 2) **contains** `2. Detailed Package Specifications` (community 25)
+- `module-development-guide` (community 2) **contains** `Initialize as a workspace package` (community 29)
+- `SAVINGS_RECEIPT_GUIDE` (community 2) **contains** `New: Savings Receipt module` (community 34)
+- `README` (community 2) **contains** `→ pruvagraph-out/benchmark_results.jsonl` (community 38)
 
 ## Isolated Nodes (Possible Dead Code)
 
 These nodes have zero connections — may be unused.
 
-- `package` (C:/Users/affan/Downloads/PRUVALEX Graph optimise LLM cost tool/omnimcp/extension/package.json)
-- `tsconfig` (C:/Users/affan/Downloads/PRUVALEX Graph optimise LLM cost tool/omnimcp/extension/tsconfig.json)
-- `package` (C:/Users/affan/Downloads/PRUVALEX Graph optimise LLM cost tool/omnimcp/package.json)
-- `package` (C:/Users/affan/Downloads/PRUVALEX Graph optimise LLM cost tool/omnimcp/packages/core-engine/package.json)
-- `index` (C:/Users/affan/Downloads/PRUVALEX Graph optimise LLM cost tool/omnimcp/packages/core-engine/src/index.ts)
-- `tsconfig` (C:/Users/affan/Downloads/PRUVALEX Graph optimise LLM cost tool/omnimcp/packages/module-taskweaver/tsconfig.json)
-- `package` (C:/Users/affan/Downloads/PRUVALEX Graph optimise LLM cost tool/omnimcp/packages/module-contextlens/package.json)
-- `package` (C:/Users/affan/Downloads/PRUVALEX Graph optimise LLM cost tool/omnimcp/packages/module-driftguard/package.json)
-- `package` (C:/Users/affan/Downloads/PRUVALEX Graph optimise LLM cost tool/omnimcp/packages/module-ghostmemory/package.json)
-- `package` (C:/Users/affan/Downloads/PRUVALEX Graph optimise LLM cost tool/omnimcp/packages/module-rulesforge/package.json)
-- `package` (C:/Users/affan/Downloads/PRUVALEX Graph optimise LLM cost tool/omnimcp/packages/module-taskweaver/package.json)
-- `package` (C:/Users/affan/Downloads/PRUVALEX Graph optimise LLM cost tool/omnimcp/packages/shared-types/package.json)
-- `index` (C:/Users/affan/Downloads/PRUVALEX Graph optimise LLM cost tool/omnimcp/packages/shared-types/src/index.ts)
-- `tsconfig` (C:/Users/affan/Downloads/PRUVALEX Graph optimise LLM cost tool/omnimcp/packages/shared-ui/tsconfig.json)
-- `package` (C:/Users/affan/Downloads/PRUVALEX Graph optimise LLM cost tool/omnimcp/packages/shared-ui/package.json)
+- `release` (C:/Users/affan/Downloads/PRUVALEX Graph optimise LLM cost tool/.github/workflows/release.yml)
+- `size-check` (C:/Users/affan/Downloads/PRUVALEX Graph optimise LLM cost tool/.github/workflows/size-check.yml)
+- `3150442d-02ac-4ae3-847c-e291ecabbccd` (C:/Users/affan/Downloads/PRUVALEX Graph optimise LLM cost tool/.nyc_output/3150442d-02ac-4ae3-847c-e291ecabbccd.json)
+- `63946ed1-7c0c-4b03-acfb-a203fcfea016` (C:/Users/affan/Downloads/PRUVALEX Graph optimise LLM cost tool/.nyc_output/63946ed1-7c0c-4b03-acfb-a203fcfea016.json)
+- `c758de6b-7734-4a38-bf05-76310320d548` (C:/Users/affan/Downloads/PRUVALEX Graph optimise LLM cost tool/.nyc_output/c758de6b-7734-4a38-bf05-76310320d548.json)
+- `3150442d-02ac-4ae3-847c-e291ecabbccd` (C:/Users/affan/Downloads/PRUVALEX Graph optimise LLM cost tool/.nyc_output/processinfo/3150442d-02ac-4ae3-847c-e291ecabbccd.json)
+- `63946ed1-7c0c-4b03-acfb-a203fcfea016` (C:/Users/affan/Downloads/PRUVALEX Graph optimise LLM cost tool/.nyc_output/processinfo/63946ed1-7c0c-4b03-acfb-a203fcfea016.json)
+- `8bd3ac70-fe92-4a47-9e2a-af043bb8b598` (C:/Users/affan/Downloads/PRUVALEX Graph optimise LLM cost tool/.nyc_output/processinfo/8bd3ac70-fe92-4a47-9e2a-af043bb8b598.json)
+- `c758de6b-7734-4a38-bf05-76310320d548` (C:/Users/affan/Downloads/PRUVALEX Graph optimise LLM cost tool/.nyc_output/processinfo/c758de6b-7734-4a38-bf05-76310320d548.json)
+- `index` (C:/Users/affan/Downloads/PRUVALEX Graph optimise LLM cost tool/.nyc_output/processinfo/index.json)
+- `.nycrc` (C:/Users/affan/Downloads/PRUVALEX Graph optimise LLM cost tool/.nycrc.json)
+- `server.lock` (C:/Users/affan/Downloads/PRUVALEX Graph optimise LLM cost tool/.opencode/server.lock.json)
+- `launch` (C:/Users/affan/Downloads/PRUVALEX Graph optimise LLM cost tool/.vscode/launch.json)
+- `mcp` (C:/Users/affan/Downloads/PRUVALEX Graph optimise LLM cost tool/.vscode/mcp.json)
+- `tasks` (C:/Users/affan/Downloads/PRUVALEX Graph optimise LLM cost tool/.vscode/tasks.json)
 
 ## Top External Dependencies
 
 | Package | Used by (nodes) |
 |---------|-----------------|
-| `__future__` | 63 |
-| `pathlib` | 47 |
-| `json` | 32 |
-| `typing` | 26 |
-| `networkx` | 18 |
-| `@omnimcp/shared-types` | 17 |
-| `re` | 17 |
-| `vscode` | 14 |
-| `dataclasses` | 13 |
-| `time` | 11 |
+| `__future__` | 79 |
+| `pathlib` | 68 |
+| `json` | 49 |
+| `typing` | 29 |
+| `networkx` | 21 |
+| `re` | 20 |
+| `path` | 18 |
+| `vscode` | 18 |
+| `fs` | 16 |
+| `dataclasses` | 16 |
 
 ---
-*Report generated by PRUVALEX PruvaGraph — 99%+ LLM cost reduction*
+*Report generated by PRUVALEX PruvaGraph — 70.5%-81.5% token savings and up to 100% cache bypass*
