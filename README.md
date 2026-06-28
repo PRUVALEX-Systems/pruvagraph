@@ -192,9 +192,36 @@ pruvagraph hook install            # git commit hook → auto-update
 
 ---
 
-## MCP Tools
+## MCP Tools Reference
 
 Exactly 23 tools — confirmed from `mcp_server.py`. Toggle any module off in VS Code Settings and the tool list updates automatically on next MCP server start.
+
+<!-- MCP tools registry — parsed by scripts/check_readme_tools.py; keep in sync with mcp_server.py -->
+```
+  analyze_impact      What breaks if I delete AuthMiddleware?
+  check_budget        Current session token spend vs. cap
+  cost_report         How much did last build save?
+  create_checkpoint   Save agent progress with git SHA
+  find_callers        Who calls process_payment()?
+  get_active_context  What's been injected into agent context?
+  get_applicable_rules  Rules for the open file (AST-detected layer)
+  get_dependencies    What does pipeline.py import?
+  get_graph_diff      What changed in the graph since yesterday?
+  get_summary         One-line summary of UserService
+  get_task_progress   Checkpoint DAG for a task
+  learn_from_accept   Record an accepted suggestion as a learned rule
+  list_checkpoints    All checkpoints for a task
+  list_communities    What are the architectural clusters?
+  list_packages       All top-level packages in this graph
+  measure_token_usage Token count of current context window
+  query_graph         How does payment processing connect to auth?
+  recall              Retrieve stored facts by key
+  remember            Store a fact/decision in the context store
+  rollback_to_checkpoint  Revert to a previous checkpoint state
+  scan_suggestion     Pre-validate a code suggestion before applying
+  trace_last_tool_calls  Recent tool call trace
+  validate_import     Does this import actually exist in the graph?
+```
 
 <details>
 <summary><strong>Core — Graph Queries (always active, 9 tools)</strong></summary>
